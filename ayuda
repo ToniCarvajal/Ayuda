@@ -1,0 +1,3815 @@
+\documentclass[12pt,a4paper]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+
+\begin{document}
+	\chapter{El Método de Escalas Múltiples}
+	
+	\section{Descripción del Método}
+	
+	Existen tres variantes del método de escalas múltiples. Las describiremos analizando el oscilador lineal amortiguado
+	
+	\begin{equation}
+		\ddot{x} + x = -2\epsilon\dot{x}
+		\label{eq:oscilador_amortiguado}
+	\end{equation}
+	
+	Elegimos este ejemplo porque su solución exacta está disponible para comparar con la solución aproximada obtenida, y porque podremos mostrar las diferentes variantes del método más claramente sin involucrarnos en álgebra complicada.
+	
+	Para empezar, determinemos una expansión asintótica directa para $\epsilon$ pequeño. Así, asumimos que
+	
+	\begin{equation}
+		x = x_0 + \epsilon x_1 + \epsilon^2 x_2 + \cdots
+		\label{eq:expansion_x}
+	\end{equation}
+	
+	Sustituyendo \eqref{eq:expansion_x} en \eqref{eq:oscilador_amortiguado} e igualando coeficientes de potencias iguales de $\epsilon$ a cero, obtenemos
+	
+	\begin{align}
+		\ddot{x}_0 + x_0 &= 0 \label{eq:x0} \\
+		\ddot{x}_1 + x_1 &= -2\dot{x}_0 \label{eq:x1} \\
+		\ddot{x}_2 + x_2 &= -2\dot{x}_1 \label{eq:x2}
+	\end{align}
+	
+	La solución general de \eqref{eq:x0} es
+	
+	\begin{equation}
+		x_0 = a \cos(t + \phi)
+		\label{eq:solucion_x0}
+	\end{equation}
+	
+	donde $a$ y $\phi$ son constantes arbitrarias. Sustituyendo $x_0$ en \eqref{eq:x1} y resolviendo la ecuación resultante, obtenemos
+	
+	\begin{equation}
+		x_1 = -at \cos(t + \phi)
+		\label{eq:solucion_x1}
+	\end{equation}
+	
+	Sustituyendo $x_1$ en \eqref{eq:x2} y resolviendo para $x_2$, obtenemos
+	
+	\begin{equation}
+		x_2 = \frac{1}{2}at^2\cos(t + \phi) + \frac{1}{2}at\sin(t + \phi)
+		\label{eq:solucion_x2}
+	\end{equation}
+	
+	Por lo tanto
+	
+	\begin{equation}
+		\begin{split}
+			x &= a\cos(t + \phi) - \epsilon at\cos(t + \phi) \\
+			&+ \frac{1}{2}\epsilon^2 a[t^2\cos(t + \phi) + t\sin(t + \phi)] + O(\epsilon^3)
+		\end{split}
+		\label{eq:solucion_expandida}
+	\end{equation}
+	
+	Es obvio que \eqref{eq:solucion_expandida} es una mala aproximación para $x$ cuando $t$ es tan grande como $\epsilon^{-1}$, porque entonces los términos segundo ($\epsilon x_1$) y tercero ($\epsilon^2 x_2$) no son pequeños comparados con $x_0$ y $\epsilon x_1$ respectivamente ($x_1$ y $x_2$ contienen términos seculares), como se asumió cuando realizamos la expansión anterior. Por lo tanto, la expansión directa no es válida cuando $t$ aumenta a $O(\epsilon^{-1})$, y la fuente de la dificultad es el dominio infinito como se discutió en la Sección 2.1.
+	
+	El fracaso de la expansión directa anterior se puede ver investigando la solución exacta de \eqref{eq:oscilador_amortiguado}, que está dada por
+	
+	\begin{equation}
+		x = ae^{-\epsilon t}\cos(\sqrt{1-\epsilon^2}t + \phi)
+		\label{eq:solucion_exacta}
+	\end{equation}
+	
+	La ecuación \eqref{eq:solucion_expandida} se puede obtener expandiendo \eqref{eq:solucion_exacta} para $\epsilon$ pequeño con $t$ fijo. Así, los factores exponencial y coseno están representados por
+	
+	\begin{align}
+		\exp(-\epsilon t) &= 1 - \epsilon t + \frac{1}{2}\epsilon^2 t^2 + \cdots \label{eq:expansion_exp} \\
+		\cos(\sqrt{1-\epsilon^2}t + \phi) &= \cos(t + \phi) + \frac{1}{2}\epsilon^2 t\sin(t + \phi) + \cdots \label{eq:expansion_cos}
+	\end{align}
+	
+	Es claro que $\exp(-\epsilon t)$ puede ser aproximado por un número finito de términos solo si la combinación $\epsilon t$ es pequeña. Como $\epsilon$ es pequeño, esto significa que $t = O(1)$. Cuando $t$ es tan grande como $\epsilon^{-1}$, $\epsilon t$ no es pequeño y la expansión truncada falla. La serie truncada anterior es satisfactoria hasta cierto valor de $t$ después del cual $\exp(-\epsilon t)$ y la serie truncada difieren entre sí por una cantidad que excede el límite prescrito de precisión. Agregar más términos a la serie truncada aumenta el valor de $t$ a un nuevo valor $t'$ para el cual esta serie truncada es satisfactoria. Sin embargo, para $t > t'$, la diferencia entre $\exp(-\epsilon t)$ y la nueva serie truncada nuevamente excede el límite prescrito de precisión. Todos los términos de la serie son necesarios para dar una expansión satisfactoria para $\exp(-\epsilon t)$ para todo $t$. Por lo tanto, para determinar una expansión válida para tiempos tan grandes como $\epsilon^{-1}$, la combinación $\epsilon t$ debe considerarse una sola variable $T_1 = O(1)$. Entonces cualquier expansión truncada para $\exp(-\epsilon t)$ válida para tiempos tan grandes como $\epsilon^{-1}$ es de la forma
+	
+	\begin{equation}
+		\exp(-\epsilon t) = \exp(-T_1)
+		\label{eq:expansion_exp_T1}
+	\end{equation}
+	
+	De manera similar, la expansión truncada \eqref{eq:expansion_cos} no es satisfactoria cuando $t$ es tan grande como $O(\epsilon^{-2})$. Para obtener una expansión asintótica truncada para $\cos(\sqrt{1-\epsilon^2}t + \phi)$ válida para $t = O(\epsilon^{-2})$, $\epsilon^2 t$ debe considerarse una sola variable $T_2 = O(1)$. Con esta condición
+	
+	\begin{equation}
+		\begin{split}
+			\cos(\sqrt{1-\epsilon^2}t + \phi) &= \cos(t - \frac{1}{2}T_2 + \phi - \frac{1}{8}\epsilon^4 t + \cdots) \\
+			&= \cos(t - \frac{1}{2}T_2 + \phi) + \frac{1}{2}\epsilon^2 t \sin(t - \frac{1}{2}T_2 + \phi) + \cdots
+		\end{split}
+		\label{eq:expansion_cos_T2}
+	\end{equation}
+	
+	La expansión \eqref{eq:expansion_cos_T2} es válida cuando $t = O(\epsilon^{-2})$ porque el término de corrección (segundo término) es $O(\epsilon^2)$ o menos para todos los tiempos hasta $O(\epsilon^{-3})$. Sin embargo, esta expansión falla cuando $t = O(\epsilon^{-3})$ porque el segundo término deja de ser pequeño comparado con el primero. Para obtener una expansión válida para tiempos tan grandes como $O(\epsilon^{-4})$, se debe introducir otra variable, $T_4 = \epsilon^4 t = O(1)$.
+	
+	La discusión anterior sugiere que $x(t;\epsilon)$ depende explícitamente de $t$, $\epsilon t$, $\epsilon^2 t$, ..., así como de $\epsilon$ mismo. Esto también se puede ver a partir de la solución exacta. Por lo tanto, para determinar una expansión truncada válida para todo $t$ hasta $O(\epsilon^{-M})$, donde $M$ es un entero positivo, debemos determinar la dependencia de $x$ en las $M+1$ escalas de tiempo diferentes $T_0, T_1, ..., T_M$, donde
+	
+	\begin{equation}
+		T_n = \epsilon^n t
+		\label{eq:escalas_tiempo}
+	\end{equation}
+	
+	La escala de tiempo $T_1$ es más lenta que $T_0$, mientras que la escala de tiempo $T_2$ es más lenta que $T_1$. En general, $T_n$ es más lenta que $T_{n-1}$. Así, asumimos que
+	
+	\begin{equation}
+		\begin{split}
+			x(t;\epsilon) &= X(T_0, T_1, ..., T_M; \epsilon) \\
+			&= \sum_{m=0}^{M-1} \epsilon^m x_m(T_0, T_1, ..., T_M) + O(\epsilon^M)
+		\end{split}
+		\label{eq:expansion_x_Tn}
+	\end{equation}
+	
+	El error en \eqref{eq:expansion_x_Tn} se establece como $O(\epsilon^M)$ para recordar al lector que esta expansión es válida para tiempos hasta $O(\epsilon^{-M})$. Más allá de estos tiempos, debemos usar otras escalas de tiempo para mantener la expansión uniformemente válida. Las ecuaciones \eqref{eq:escalas_tiempo} y \eqref{eq:expansion_x_Tn} muestran que el problema se ha transformado de una ecuación diferencial ordinaria a una ecuación diferencial parcial. Si el problema original es una ecuación diferencial parcial, entonces la introducción de diferentes escalas de tiempo aumenta el número de variables independientes. Usando la regla de la cadena, la derivada temporal se transforma según
+	
+	\begin{equation}
+		\frac{d}{dt} = \sum_{n=0}^M \epsilon^n \frac{\partial}{\partial T_n}
+		\label{eq:derivada_tiempo}
+	\end{equation}
+	
+	Las ecuaciones \eqref{eq:escalas_tiempo} a \eqref{eq:derivada_tiempo} formulan una versión del método de escalas múltiples; a saber, la versión de múltiples variables. Esta técnica ha sido desarrollada por Sturrock (1957, 1963), Frieman (1963), Nayfeh (1965c, d, 1968) y Sandri (1965, 1967). Las ecuaciones \eqref{eq:expansion_x_Tn} y \eqref{eq:derivada_tiempo} muestran que se obtiene una expansión uniformemente válida expandiendo las derivadas así como las variables dependientes en potencias del parámetro pequeño. Por lo tanto, Sturrock y Nayfeh llamaron a esta técnica el método de expansión de derivadas.
+	Sustituyendo \eqref{eq:expansion_x_Tn} y \eqref{eq:derivada_tiempo} en \eqref{eq:oscilador_amortiguado} e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos las siguientes ecuaciones para $x_0$, $x_1$, y $x_2$
+	
+	\begin{align}
+		\frac{\partial^2 x_0}{\partial T_0^2} + x_0 &= 0 \label{eq:x0_escalas} \\
+		\frac{\partial^2 x_1}{\partial T_0^2} + x_1 &= -2\frac{\partial^2 x_0}{\partial T_0 \partial T_1} - 2\frac{\partial x_0}{\partial T_0} \label{eq:x1_escalas} \\
+		\frac{\partial^2 x_2}{\partial T_0^2} + x_2 &= -2\frac{\partial^2 x_0}{\partial T_0 \partial T_1} - 2\frac{\partial^2 x_1}{\partial T_0 \partial T_1} - \frac{\partial^2 x_0}{\partial T_1^2} - 2\frac{\partial x_1}{\partial T_0} - 2\frac{\partial x_0}{\partial T_2} \label{eq:x2_escalas}
+	\end{align}
+	
+	La solución general de \eqref{eq:x0_escalas} es
+	
+	\begin{equation}
+		x_0 = A_0(T_1,T_2)e^{iT_0} + \bar{A}_0(T_1,T_2)e^{-iT_0}
+		\label{eq:solucion_x0_escalas}
+	\end{equation}
+	
+	donde $\bar{A}_0$ es el conjugado complejo de $A_0$. Esta solución es simplemente equivalente a \eqref{eq:solucion_x0} donde $a$ y $\phi$ se toman como funciones de las escalas de tiempo lentas $T_1$ y $T_2$ en lugar de ser constantes. Sustituyendo $x_0$ de \eqref{eq:solucion_x0_escalas} en \eqref{eq:x1_escalas}, obtenemos
+	
+	\begin{equation}
+		\frac{\partial^2 x_1}{\partial T_0^2} + x_1 = (-2i\frac{\partial A_0}{\partial T_1} - 2A_0)e^{iT_0} + CC
+		\label{eq:x1_escalas_expandida}
+	\end{equation}
+	
+	La solución general de \eqref{eq:x1_escalas_expandida} es
+	
+	\begin{equation}
+		x_1 = A_1(T_1,T_2)e^{iT_0} + \bar{A}_1(T_1,T_2)e^{-iT_0} - (T_0\frac{\partial A_0}{\partial T_1} + A_0T_0)e^{iT_0} + CC
+		\label{eq:solucion_x1_escalas}
+	\end{equation}
+	
+	Comparando \eqref{eq:solucion_x1_escalas} con \eqref{eq:solucion_x0_escalas} muestra que $\epsilon x_1$ es una pequeña corrección a $x$ solo cuando $\epsilon T_0 = \epsilon t$ es pequeño. Para obtener una expansión válida para tiempos tan grandes como $O(\epsilon^{-1})$, los términos seculares, $T_0\exp(\pm iT_0)$, en \eqref{eq:solucion_x1_escalas} deben desaparecer; es decir
+	
+	\begin{equation}
+		\frac{\partial A_0}{\partial T_1} + A_0 = 0
+		\label{eq:condicion_A0}
+	\end{equation}
+	
+	o
+	
+	\begin{equation}
+		A_0 = a_1(T_2)e^{-T_1}
+		\label{eq:solucion_A0}
+	\end{equation}
+	
+	Entonces \eqref{eq:solucion_x1_escalas} se convierte en
+	
+	\begin{equation}
+		x_1 = A_1(T_1,T_2)e^{iT_0} + \bar{A}_1(T_1,T_2)e^{-iT_0}
+		\label{eq:solucion_x1_simplificada}
+	\end{equation}
+	
+	Usando $x_0$ y $x_1$ en \eqref{eq:x2_escalas}, obtenemos
+	
+	\begin{equation}
+		\frac{\partial^2 x_2}{\partial T_0^2} + x_2 = -Q(T_1,T_2)e^{iT_0} - \bar{Q}(T_1,T_2)e^{-iT_0}
+		\label{eq:x2_escalas_expandida}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		Q(T_1,T_2) = 2iA_1 + 2i\frac{\partial A_0}{\partial T_2} + a_0e^{-T_1} + 2i\frac{\partial A_1}{\partial T_1}
+		\label{eq:Q_definicion}
+	\end{equation}
+	
+	Los términos en el lado derecho de \eqref{eq:x2_escalas_expandida} producen términos seculares porque la solución particular es
+	
+	\begin{equation}
+		x_2 = \frac{1}{2}iQ(T_1,T_2)T_0e^{iT_0} - \frac{1}{2}i\bar{Q}(T_1,T_2)T_0e^{-iT_0}
+		\label{eq:solucion_x2_escalas}
+	\end{equation}
+	
+	Estos términos seculares hacen que $\epsilon^2 x_2$ sea del mismo orden que $\epsilon x_1$ cuando $t$ es tan grande como $O(\epsilon^{-1})$. Para eliminar estos términos seculares, $Q$ debe desaparecer; es decir
+	
+	\begin{equation}
+		2iA_1 + 2i\frac{\partial A_0}{\partial T_2} + a_0e^{-T_1} + 2i\frac{\partial A_1}{\partial T_1} = 0
+		\label{eq:condicion_Q}
+	\end{equation}
+	
+	En general, uno no necesita resolver para $x_2$ para llegar a \eqref{eq:condicion_Q}. Uno solo necesita inspeccionar \eqref{eq:x2_escalas_expandida} y eliminar términos que producen términos seculares. La solución general de \eqref{eq:condicion_Q} es
+	
+	\begin{equation}
+		A_1 = a_1(T_2) + \left(i\frac{\partial a_0}{\partial T_2} - \frac{1}{2}a_0T_1\right)e^{iT_1}
+		\label{eq:solucion_A1}
+	\end{equation}
+	
+	Sustituyendo $A_1$ en \eqref{eq:solucion_x1_simplificada}, obtenemos
+	
+	\begin{equation}
+		x_1 = \left[a_1(T_2) + \left(i\frac{\partial a_0}{\partial T_2} - \frac{1}{2}a_0T_1\right)e^{iT_1}\right]e^{iT_0} + CC
+		\label{eq:solucion_x1_final}
+	\end{equation}
+	
+	donde $CC$ representa el conjugado complejo de la expresión precedente. Sin embargo,
+	
+	\begin{equation}
+		x_0 = [a_0e^{iT_0} + \bar{a}_0e^{-iT_0}]e^{-T_1}
+		\label{eq:solucion_x0_final}
+	\end{equation}
+	
+	Por lo tanto, cuando $T_1 \to \infty$, aunque $x_0$ y $x_1 \to 0$, $\epsilon x_1$ se vuelve $O(x_0)$ cuando $t$ aumenta a $O(\epsilon^{-2})$. Así, la expansión $x_0 + \epsilon x_1$ falla para $t$ tan grande como $O(\epsilon^{-2})$ a menos que los coeficientes de $T_1$ en los corchetes en \eqref{eq:solucion_x1_final} desaparezcan; es decir, a menos que
+	
+	\begin{equation}
+		\frac{\partial a_0}{\partial T_2} = -\frac{1}{2}a_0
+		\label{eq:condicion_a0}
+	\end{equation}
+	
+	o
+	
+	\begin{equation}
+		a_0 = a_{00}e^{-\frac{1}{2}T_2}
+		\label{eq:solucion_a0}
+	\end{equation}
+	
+	donde $a_{00}$ es una constante. Entonces \eqref{eq:solucion_A1} se convierte en
+	
+	\begin{equation}
+		A_1 = a_1(T_2)e^{-T_1}
+		\label{eq:solucion_A1_final}
+	\end{equation}
+	
+	Por lo tanto,
+	
+	\begin{equation}
+		x = a_{00}e^{-T_1-\frac{1}{2}T_2}\cos(T_0) + \epsilon a_1(T_2)e^{-T_1}\cos(T_0) + O(\epsilon^2)
+		\label{eq:solucion_x_final}
+	\end{equation}
+	
+	La función $a_1(T_2)$ se puede determinar llevando a cabo la expansión a tercer orden
+	
+	\begin{equation}
+		a_1(T_2) = a_{11}e^{-\frac{1}{2}T_2}
+		\label{eq:solucion_a1}
+	\end{equation}
+	
+	donde $a_{11}$ es una constante. Si asumimos que las condiciones iniciales son tales que $x(0) = a\cos\phi$ y $\dot{x}(0) = -a(\sin\phi - \frac{1}{2}\epsilon\cos\phi)$ y reemplazamos $T_n$ por $\epsilon^n t$, obtenemos
+	
+	\begin{equation}
+		x = ae^{-\epsilon t}\cos(t - \frac{1}{2}\epsilon^2 t + \phi) + R
+		\label{eq:solucion_final}
+	\end{equation}
+	
+	donde $R$ es el resto. De \eqref{eq:solucion_exacta} y \eqref{eq:solucion_final}, encontramos que
+	
+	\begin{equation}
+		R = O(\epsilon^2 t^2 e^{-\epsilon t})
+		\label{eq:error_estimacion}
+	\end{equation}
+	
+	Para ecuaciones lineales como \eqref{eq:oscilador_amortiguado}, podemos introducir las diferentes escalas de tiempo sin expandir $x$. Así, usando \eqref{eq:derivada_tiempo} en \eqref{eq:oscilador_amortiguado}, obtenemos
+	
+	\begin{equation}
+		\left(\frac{\partial}{\partial T_0} + \epsilon\frac{\partial}{\partial T_1} + \epsilon^2\frac{\partial}{\partial T_2} + \cdots\right)^2 x + x = -2\epsilon\left(\frac{\partial}{\partial T_0} + \epsilon\frac{\partial}{\partial T_1} + \epsilon^2\frac{\partial}{\partial T_2} + \cdots\right)x
+		\label{eq:ecuacion_escalas}
+	\end{equation}
+	
+	Igualando los coeficientes de potencias iguales de $\epsilon$ a cero, obtenemos
+	
+	\begin{align}
+		\frac{\partial^2 x}{\partial T_0^2} + x &= 0 \label{eq:ecuacion_T0} \\
+		2\frac{\partial^2 x}{\partial T_0 \partial T_1} + 2\frac{\partial x}{\partial T_0} &= 0 \label{eq:ecuacion_T1} \\
+		2\frac{\partial^2 x}{\partial T_0 \partial T_2} + \frac{\partial^2 x}{\partial T_1^2} + 2\frac{\partial x}{\partial T_1} &= 0 \label{eq:ecuacion_T2}
+	\end{align}
+	
+	La solución general de \eqref{eq:ecuacion_T0} es
+	
+	\begin{equation}
+		x = A(T_1,T_2)e^{iT_0} + \bar{A}(T_1,T_2)e^{-iT_0}
+		\label{eq:solucion_x_T0}
+	\end{equation}
+	
+	Sustituyendo en \eqref{eq:ecuacion_T1}, obtenemos
+	
+	\begin{equation}
+		2i\frac{\partial A}{\partial T_1}e^{iT_0} - 2i\frac{\partial \bar{A}}{\partial T_1}e^{-iT_0} + 2iAe^{iT_0} - 2i\bar{A}e^{-iT_0} = 0
+		\label{eq:ecuacion_T1_expandida}
+	\end{equation}
+	
+	Como \eqref{eq:ecuacion_T1_expandida} debe ser válida para todo $T_0$, los coeficientes de $\exp(iT_0)$ y $\exp(-iT_0)$ deben desaparecer; es decir
+	
+	\begin{equation}
+		\frac{\partial A}{\partial T_1} + A = 0
+		\label{eq:condicion_A_T1}
+	\end{equation}
+	
+	o
+	
+	\begin{equation}
+		A = a(T_2)e^{-T_1}
+		\label{eq:solucion_A_T1}
+	\end{equation}
+	
+	Sustituyendo \eqref{eq:solucion_x_T0} en \eqref{eq:ecuacion_T2} da
+	
+	\begin{equation}
+		2i\frac{\partial A}{\partial T_2}e^{iT_0} - 2i\frac{\partial \bar{A}}{\partial T_2}e^{-iT_0} + \frac{\partial^2 A}{\partial T_1^2}e^{iT_0} + \frac{\partial^2 \bar{A}}{\partial T_1^2}e^{-iT_0} + 2\frac{\partial A}{\partial T_1}e^{iT_0} + 2\frac{\partial \bar{A}}{\partial T_1}e^{-iT_0} = 0
+		\label{eq:ecuacion_T2_expandida}
+	\end{equation}
+	
+	Así,
+	
+	\begin{equation}
+		2i\frac{\partial A}{\partial T_2} + \frac{\partial^2 A}{\partial T_1^2} + 2\frac{\partial A}{\partial T_1} = 0
+		\label{eq:condicion_A_T2}
+	\end{equation}
+	
+Sustituyendo $A$ de \eqref{eq:solucion_A_T1} en \eqref{eq:condicion_A_T2} da
+
+\begin{equation}
+	2i\frac{\partial a}{\partial T_2} - a = 0
+	\label{eq:ecuacion_a_T2}
+\end{equation}
+
+Por lo tanto
+
+\begin{equation}
+	a = a_0e^{-\frac{1}{2}T_2}
+	\label{eq:solucion_a_T2}
+\end{equation}
+
+donde $a_0$ es una constante. Por lo tanto \eqref{eq:solucion_x_T0} se convierte en
+
+\begin{equation}
+	x = ae^{-T_1}e^{i(T_0-\frac{1}{2}T_2)} + CC
+	\label{eq:solucion_x_final_T}
+\end{equation}
+
+Expresando \eqref{eq:solucion_x_final_T} en términos de $t$ da
+
+\begin{equation}
+	x = ae^{-\epsilon t}\cos(t - \frac{1}{2}\epsilon^2 t + \phi)
+	\label{eq:solucion_x_final_t}
+\end{equation}
+
+donde $a_0 = \frac{1}{2}a\exp(i\phi)$. Este resultado está en pleno acuerdo con \eqref{eq:solucion_final}.
+
+\subsection{El Procedimiento de Expansión de Dos Variables}
+
+Cambiando la variable independiente de $t$ a $\xi$ y $\eta$ como se define en \eqref{eq:derivada_tiempo}, transformamos \eqref{eq:oscilador_amortiguado} en
+
+\begin{equation}
+	\frac{\partial^2 x}{\partial \eta^2} + x = -2\epsilon(1 + \epsilon\omega_2 + \cdots)\frac{\partial x}{\partial \eta} - 2\epsilon^2\frac{\partial x}{\partial \xi}
+	\label{eq:ecuacion_dos_variables}
+\end{equation}
+
+Asumimos que
+
+\begin{equation}
+	x = x_0(\xi, \eta) + \epsilon x_1(\xi, \eta) + \epsilon^2 x_2(\xi, \eta) + \cdots
+	\label{eq:expansion_dos_variables}
+\end{equation}
+
+Sustituyendo \eqref{eq:expansion_dos_variables} en \eqref{eq:ecuacion_dos_variables} e igualando coeficientes de potencias iguales de $\epsilon$ en ambos lados, obtenemos
+
+\begin{align}
+	\frac{\partial^2 x_0}{\partial \eta^2} + x_0 &= 0 \label{eq:x0_dos_variables} \\
+	\frac{\partial^2 x_1}{\partial \eta^2} + x_1 &= -2\frac{\partial x_0}{\partial \eta} \label{eq:x1_dos_variables} \\
+	\frac{\partial^2 x_2}{\partial \eta^2} + x_2 &= -2\frac{\partial x_1}{\partial \eta} - 2\omega_2\eta\frac{\partial^2 x_0}{\partial \eta^2} - 2\frac{\partial x_0}{\partial \xi} \label{eq:x2_dos_variables}
+\end{align}
+
+La solución general de \eqref{eq:x0_dos_variables} es
+
+\begin{equation}
+	x_0 = A_0(\xi)e^{i\eta} + \bar{A}_0(\xi)e^{-i\eta}
+	\label{eq:solucion_x0_dos_variables}
+\end{equation}
+
+Con esta solución, \eqref{eq:x1_dos_variables} se convierte en
+
+\begin{equation}
+	\frac{\partial^2 x_1}{\partial \eta^2} + x_1 = -2iA_0e^{i\eta} + 2i\bar{A}_0e^{-i\eta}
+	\label{eq:x1_dos_variables_expandida}
+\end{equation}
+
+Eliminando los términos que producen términos seculares en \eqref{eq:x1_dos_variables_expandida} da
+
+\begin{equation}
+	\frac{dA_0}{d\xi} + A_0 = 0
+	\label{eq:condicion_A0_dos_variables}
+\end{equation}
+
+Por lo tanto
+
+\begin{equation}
+	A_0 = a_0e^{-\xi}
+	\label{eq:solucion_A0_dos_variables}
+\end{equation}
+
+donde $a_0$ es una constante. La solución de \eqref{eq:condicion_A0_dos_variables} es
+
+\begin{equation}
+	x_1 = A_1(\xi)e^{i\eta} + \bar{A}_1(\xi)e^{-i\eta}
+	\label{eq:solucion_x1_dos_variables}
+\end{equation}
+
+Sustituyendo las soluciones anteriores para $x_0$ y $x_1$ en \eqref{eq:x2_dos_variables} da
+
+\begin{equation}
+	\frac{\partial^2 x_2}{\partial \eta^2} + x_2 = [-2i(A_1' + A_0') + (2\omega_2 + 1)a_0e^{-\xi}]e^{i\eta} + CC
+	\label{eq:x2_dos_variables_expandida}
+\end{equation}
+
+Eliminando los términos que producen términos seculares en \eqref{eq:x2_dos_variables_expandida} da
+
+\begin{equation}
+	-2i(A_1' + A_0') + (2\omega_2 + 1)a_0e^{-\xi} = 0
+	\label{eq:condicion_A1_dos_variables}
+\end{equation}
+
+cuya solución es
+
+\begin{equation}
+	A_1 = a_1e^{-\xi} + \frac{1}{4}i(2\omega_2 + 1)a_0\xi e^{-\xi}
+	\label{eq:solucion_A1_dos_variables}
+\end{equation}
+
+Sustituyendo $A_1$ en \eqref{eq:solucion_x1_dos_variables} y comparando el resultado con \eqref{eq:solucion_x0_dos_variables} muestra que $x_1/x_0$ es no acotada cuando $\xi \to \infty$ a menos que
+
+\begin{equation}
+	\omega_2 = -\frac{1}{4}
+	\label{eq:condicion_omega2}
+\end{equation}
+
+Por lo tanto, en términos de $t$, \eqref{eq:expansion_dos_variables} se convierte en
+
+\begin{equation}
+	x = ae^{-\epsilon t}\cos(t - \frac{1}{4}\epsilon^2 t + \phi) + O(\epsilon^2)
+	\label{eq:solucion_final_dos_variables}
+\end{equation}
+
+donde $a_0 + \epsilon a_1 = \frac{1}{2}a\exp(i\phi)$. Esta expresión está en pleno acuerdo con la obtenida usando la versión de múltiples variables (método de expansión de derivadas).
+
+\subsection{Método Generalizado - Escalas No Lineales}
+
+Primero introducimos una nueva variable $\tau = \epsilon t$ para transformar \eqref{eq:oscilador_amortiguado} en
+
+\begin{equation}
+	\epsilon^2\frac{d^2x}{d\tau^2} + 2\epsilon\frac{dx}{d\tau} + x = 0
+	\label{eq:ecuacion_tau}
+\end{equation}
+
+Para determinar una expansión uniformemente válida, hacemos
+
+\begin{equation}
+	\xi = \tau, \quad \eta = \frac{1}{\epsilon}g_{-1}(\tau) + g_0(\tau) + \epsilon g_1(\tau) + \cdots, \quad g_i(0) = 0
+	\label{eq:escalas_no_lineales}
+\end{equation}
+
+donde $g_i$ se determina en el curso del análisis. Las derivadas con respecto a $\tau$ se transforman entonces según
+
+\begin{equation}
+	\frac{d}{d\tau} = \frac{\partial}{\partial \xi} + \frac{1}{\epsilon}g_{-1}' \frac{\partial}{\partial \eta} + (g_0' + \epsilon g_1' + \cdots)\frac{\partial}{\partial \eta}
+	\label{eq:derivada_tau}
+\end{equation}
+
+\begin{equation}
+	\frac{d^2}{d\tau^2} = \frac{\partial^2}{\partial \xi^2} + \frac{2}{\epsilon}g_{-1}'\frac{\partial^2}{\partial \xi \partial \eta} + \frac{1}{\epsilon^2}(g_{-1}')^2\frac{\partial^2}{\partial \eta^2} + \cdots
+	\label{eq:derivada_segunda_tau}
+\end{equation}
+
+Asumimos que $x$ posee una expansión uniformemente válida de la forma
+
+\begin{equation}
+	x = x_0(\xi, \eta) + \epsilon x_1(\xi, \eta) + \epsilon^2 x_2(\xi, \eta) + \cdots
+	\label{eq:expansion_no_lineal}
+\end{equation}
+
+Sustituyendo \eqref{eq:derivada_tau} a \eqref{eq:expansion_no_lineal} en \eqref{eq:ecuacion_tau} e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+\begin{align}
+	(g_{-1}')^2\frac{\partial^2 x_0}{\partial \eta^2} + x_0 &= 0 \label{eq:x0_no_lineal} \\
+	(g_{-1}')^2\frac{\partial^2 x_1}{\partial \eta^2} + x_1 &= -2g_{-1}'\frac{\partial^2 x_0}{\partial \xi \partial \eta} - 2g_{-1}'\frac{\partial x_0}{\partial \eta} \label{eq:x1_no_lineal}
+\end{align}
+
+La solución general de \eqref{eq:x0_no_lineal} es
+
+\begin{equation}
+	x_0 = A_0(\xi)e^{i\gamma\eta} + \bar{A}_0(\xi)e^{-i\gamma\eta}
+	\label{eq:solucion_x0_no_lineal}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\gamma = \frac{1}{g_{-1}'}
+	\label{eq:gamma_definicion}
+\end{equation}
+
+Sustituyendo $x_0$ en \eqref{eq:x1_no_lineal} da
+
+\begin{equation}
+	(g_{-1}')^2\frac{\partial^2 x_1}{\partial \eta^2} + x_1 = -[(g_{-1}'\gamma)' + 2i\gamma g_{-1}']A_0e^{i\gamma\eta} + CC
+	\label{eq:x1_no_lineal_expandida}
+\end{equation}
+
+Los términos en el lado derecho de \eqref{eq:x1_no_lineal_expandida} producen términos seculares. Para eliminar términos seculares
+
+\begin{equation}
+	(g_{-1}'\gamma)' + 2i\gamma g_{-1}' = 0
+	\label{eq:condicion_secular}
+\end{equation}
+
+Como \eqref{eq:condicion_secular} debe ser válida para todo $\eta$, y $A_0 \neq 0$ para una solución no trivial, requerimos que
+
+\begin{equation}
+	g_{-1}'' = 0 \quad \text{o} \quad g_{-1}' = c\xi \quad \text{ya que} \quad g_{-1}(0) = 0
+	\label{eq:condicion_g_-1}
+\end{equation}
+
+donde $c$ es una constante arbitraria que puede tomarse como la unidad sin pérdida de generalidad. Entonces \eqref{eq:condicion_secular} se convierte en
+
+\begin{equation}
+	A_0' + (1 + ig_0')A_0 = 0
+	\label{eq:ecuacion_A0_no_lineal}
+\end{equation}
+
+cuya solución es
+
+\begin{equation}
+	A_0 = a_0e^{-\xi-ig_0(\xi)}
+	\label{eq:solucion_A0_no_lineal}
+\end{equation}
+
+donde $a_0$ es una constante. Con $A_0$ y $g_{-1}$ conocidos
+
+\begin{equation}
+	x_0 = a_0e^{-\tau}e^{i(\tau/\epsilon)} + CC
+	\label{eq:solucion_x0_final_no_lineal}
+\end{equation}
+
+La ecuación \eqref{eq:solucion_x0_final_no_lineal} muestra que $g_0$ se cancela, por lo tanto la solución es independiente del valor de $g_0$. Por lo tanto, podríamos también establecerlo igual a cero sin pérdida de generalidad. Por lo tanto, $A_0$ se convierte en
+
+\begin{equation}
+	A_0 = a_0e^{-\xi}
+	\label{eq:A0_final_no_lineal}
+\end{equation}
+
+Como resultado de \eqref{eq:condicion_secular}, la solución para $x_1$ es
+
+\begin{equation}
+	x_1 = A_1(\xi)e^{i\eta} + \bar{A}_1(\xi)e^{-i\eta}
+	\label{eq:solucion_x1_no_lineal}
+\end{equation}
+
+Con $g_{-1} = \xi$ y $g_0 = 0$, la ecuación para $x_2$ puede determinarse sustituyendo \eqref{eq:derivada_tau} a \eqref{eq:expansion_no_lineal} en \eqref{eq:ecuacion_tau} e igualando el coeficiente de $\epsilon^2$ a cero. Así
+
+\begin{equation}
+	\frac{\partial^2 x_2}{\partial \eta^2} + x_2 = -2\frac{\partial^2 x_0}{\partial \xi \partial \eta} - 2\frac{\partial x_1}{\partial \eta} - 2g_1\frac{\partial^2 x_0}{\partial \eta^2} - 2\frac{\partial x_0}{\partial \xi}
+	\label{eq:x2_no_lineal}
+\end{equation}
+
+Sustituyendo $x_0$ y $x_1$ en \eqref{eq:x2_no_lineal} da
+
+\begin{equation}
+	\frac{\partial^2 x_2}{\partial \eta^2} + x_2 = -[2i(A_1' + A_0') - (2g_1' + 1)a_0e^{-\xi}]e^{i\eta} + CC
+	\label{eq:x2_no_lineal_expandida}
+\end{equation}
+
+Eliminando los términos que producen términos seculares en \eqref{eq:x2_no_lineal_expandida}, obtenemos
+
+\begin{equation}
+	A_1' + A_0' = -\frac{1}{2}i(2g_1' + 1)a_0e^{-\xi}
+	\label{eq:condicion_A1_no_lineal}
+\end{equation}
+
+La solución de \eqref{eq:condicion_A1_no_lineal} es
+
+\begin{equation}
+	A_1 = a_1e^{-\xi} - \frac{1}{4}ia_0(2g_1 + \xi)e^{-\xi}
+	\label{eq:solucion_A1_no_lineal}
+\end{equation}
+
+donde $a_1$ es una constante. La ecuación \eqref{eq:solucion_A1_no_lineal} muestra que $x_1/x_0$ es no acotada cuando $\xi \to \infty$ a menos que
+
+\begin{equation}
+	g_1 = -\frac{1}{4}\xi
+	\label{eq:condicion_g1}
+\end{equation}
+
+En términos de $t = \tau/\epsilon$, la expansión se convierte en
+
+\begin{equation}
+	x = ae^{-\epsilon t}\cos(t - \frac{1}{4}\epsilon^2 t + \phi) + O(\epsilon^2)
+	\label{eq:solucion_final_no_lineal}
+\end{equation}
+
+donde $a_0 + \epsilon a_1 = \frac{1}{2}a\exp(i\phi)$. Esta expansión está nuevamente de acuerdo con las obtenidas usando las versiones de expansión de derivadas y expansión de dos variables del método de escalas múltiples.
+
+\section{Aplicaciones del Método de Expansión de Derivadas}
+
+\subsection{La Ecuación de Duffing}
+
+El segundo ejemplo al que aplicamos el método de expansión de derivadas es la ecuación de Duffing
+
+\begin{equation}
+	\frac{d^2u}{dt^2} + \omega_0^2u + \epsilon u^3 = 0
+	\label{eq:duffing}
+\end{equation}
+
+Asumimos que
+
+\begin{equation}
+	u = u_0(T_0, T_1, T_2) + \epsilon u_1(T_0, T_1, T_2) + \epsilon^2 u_2(T_0, T_1, T_2) + \cdots
+	\label{eq:expansion_duffing}
+\end{equation}
+
+Entonces
+
+\begin{equation}
+	\frac{d}{dt} = D_0 + \epsilon D_1 + \epsilon^2 D_2 + \cdots, \quad D_n = \frac{\partial}{\partial T_n}
+	\label{eq:derivada_duffing}
+\end{equation}
+
+Sustituyendo \eqref{eq:expansion_duffing} y \eqref{eq:derivada_duffing} en \eqref{eq:duffing} e igualando coeficientes de cada potencia de $\epsilon$ a cero, tenemos
+
+\begin{align}
+	D_0^2u_0 + \omega_0^2u_0 &= 0 \label{eq:u0_duffing} \\
+	D_0^2u_1 + \omega_0^2u_1 &= -2D_0D_1u_0 - u_0^3 \label{eq:u1_duffing} \\
+	D_0^2u_2 + \omega_0^2u_2 &= -2D_0D_1u_1 - 2D_0D_2u_0 - D_1^2u_0 - 3u_0^2u_1 \label{eq:u2_duffing}
+\end{align}
+
+La solución de \eqref{eq:u0_duffing} es
+
+\begin{equation}
+	u_0 = A(T_1,T_2)e^{i\omega_0T_0} + \bar{A}(T_1,T_2)e^{-i\omega_0T_0}
+	\label{eq:solucion_u0_duffing}
+\end{equation}
+
+La ecuación \eqref{eq:u1_duffing} entonces se convierte en
+
+\begin{equation}
+	D_0^2u_1 + \omega_0^2u_1 = -[2i\omega_0D_1A + 3A^2\bar{A}]e^{i\omega_0T_0} - A^3e^{3i\omega_0T_0} + CC
+	\label{eq:u1_duffing_expandida}
+\end{equation}
+
+Para que $u_1/u_0$ sea acotada para todo $T_0$, los términos que producen términos seculares deben ser eliminados. Por lo tanto
+
+\begin{equation}
+	2i\omega_0D_1A + 3A^2\bar{A} = 0
+	\label{eq:condicion_A_duffing}
+\end{equation}
+
+y la solución para $u_1$ se convierte en
+
+\begin{equation}
+	u_1 = -\frac{1}{8\omega_0^2}A^3e^{3i\omega_0T_0} + CC
+	\label{eq:solucion_u1_duffing}
+\end{equation}
+
+Para resolver \eqref{eq:condicion_A_duffing}, hacemos $A = \frac{1}{2}ae^{i\beta}$ con $a$ y $\beta$ reales, separamos partes reales e imaginarias, y obtenemos
+
+\begin{align}
+	\frac{\partial a}{\partial T_1} &= 0 \label{eq:ecuacion_a_duffing} \\
+	\frac{\partial \beta}{\partial T_1} &= -\frac{3}{8\omega_0}a^2 \label{eq:ecuacion_beta_duffing}
+\end{align}
+
+Por lo tanto
+
+\begin{align}
+	a &= a(T_2) \label{eq:solucion_a_duffing} \\
+	\beta &= -\frac{3}{8\omega_0}a^2T_1 + \beta_0(T_2) \label{eq:solucion_beta_duffing}
+\end{align}
+
+Sustituyendo $u_0$ y $u_1$ en \eqref{eq:u2_duffing} da
+
+\begin{equation}
+	D_0^2u_2 + \omega_0^2u_2 = -Q(T_1,T_2)e^{i\omega_0T_0} + CC
+	\label{eq:u2_duffing_expandida}
+\end{equation}
+
+donde
+
+\begin{equation}
+	Q = 2i\omega_0D_1B + 3A^2B + 6A\bar{A}B + 2i\omega_0D_2A - \frac{3}{8\omega_0^2}A^3\bar{A}
+	\label{eq:Q_duffing}
+\end{equation}
+
+Los términos seculares se eliminan si
+
+\begin{equation}
+	B = 0
+	\label{eq:condicion_B_duffing}
+\end{equation}
+
+y
+
+\begin{equation}
+	2i\omega_0D_2A = \frac{3}{8\omega_0^2}A^3\bar{A}
+	\label{eq:condicion_A2_duffing}
+\end{equation}
+
+Con $Q = 0$, la solución de $u_2$, descartando la solución homogénea, es
+
+\begin{equation}
+	u_2 = \frac{3}{256\omega_0^4}A^4e^{4i\omega_0T_0} + CC
+	\label{eq:solucion_u2_duffing}
+\end{equation}
+
+Haciendo $A = \frac{1}{2}ae^{i\beta}$ en \eqref{eq:condicion_A2_duffing} y separando partes reales e imaginarias, obtenemos
+
+\begin{align}
+	\frac{\partial a}{\partial T_2} &= 0 \label{eq:ecuacion_a2_duffing} \\
+	a\frac{\partial \beta}{\partial T_2} &= -\frac{3}{256\omega_0^3}a^4 \label{eq:ecuacion_beta2_duffing}
+\end{align}
+
+Las ecuaciones \eqref{eq:solucion_a_duffing} y \eqref{eq:ecuacion_a2_duffing} llevan a
+
+\begin{equation}
+	a = \text{una constante}
+	\label{eq:a_constante_duffing}
+\end{equation}
+
+Por lo tanto
+
+\begin{equation}
+	\beta = -\frac{3}{8\omega_0}a^2T_1 - \frac{3}{256\omega_0^3}a^4T_2 + \chi
+	\label{eq:beta_final_duffing}
+\end{equation}
+
+donde $\chi$ es una constante. Por lo tanto
+
+\begin{equation}
+	A = \frac{1}{2}a\exp\left[-i\left(\frac{3}{8\omega_0}a^2T_1 + \frac{3}{256\omega_0^3}a^4T_2 - \chi\right)\right]
+	\label{eq:A_final_duffing}
+\end{equation}
+
+Sustituyendo $u_0$, $u_1$, y $u_2$ en \eqref{eq:expansion_duffing}, teniendo en cuenta que $A = \frac{1}{2}a\exp(i\beta)$ y expresando el resultado en términos de $t$, obtenemos
+
+\begin{equation}
+	\begin{split}
+		u = a\cos(\omega t + \chi) &+ \frac{\epsilon a^3}{32\omega_0^2}\left(1 - \frac{1}{32\omega_0^2}\epsilon a^2\right)\cos 3(\omega t + \chi) \\
+		&+ \frac{\epsilon^2 a^5}{1024\omega_0^4}\cos 5(\omega t + \chi) + O(\epsilon^3)
+	\end{split}
+	\label{eq:solucion_final_duffing}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\omega = \omega_0 + \frac{3\epsilon a^2}{8\omega_0} - \frac{15\epsilon^2 a^4}{256\omega_0^3} + O(\epsilon^3)
+	\label{eq:omega_duffing}
+\end{equation}
+
+En los dos últimos términos de \eqref{eq:solucion_final_duffing}, $\omega_0$ se reemplaza por $\omega$ con un error $O(\epsilon^3)$.
+
+\subsection{El Oscilador de Van der Pol}
+
+Como segundo ejemplo, consideramos el oscilador de van der Pol
+
+\begin{equation}
+	\frac{d^2u}{dt^2} + u = \epsilon(1 - u^2)\frac{du}{dt}
+	\label{eq:van_der_pol}
+\end{equation}
+
+Sustituyendo \eqref{eq:expansion_duffing} y \eqref{eq:derivada_duffing} en \eqref{eq:van_der_pol} e igualando los coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+\begin{align}
+	D_0^2u_0 + u_0 &= 0 \label{eq:u0_vdp} \\
+	D_0^2u_1 + u_1 &= -2D_0D_1u_0 + (1 - u_0^2)D_0u_0 \label{eq:u1_vdp} \\
+	D_0^2u_2 + u_2 &= -2D_0D_1u_1 - D_1^2u_0 - 2D_0D_2u_0 + (1 - u_0^2)D_0u_1 \nonumber \\
+	&\quad + (1 - u_0^2)D_1u_0 - 2u_0u_1D_0u_0 \label{eq:u2_vdp}
+\end{align}
+
+La solución de \eqref{eq:u0_vdp} es
+
+\begin{equation}
+	u_0 = A(T_1,T_2)e^{iT_0} + \bar{A}(T_1,T_2)e^{-iT_0}
+	\label{eq:solucion_u0_vdp}
+\end{equation}
+
+Sustituyendo $u_0$ en \eqref{eq:u1_vdp} da
+
+\begin{equation}
+	D_0^2u_1 + u_1 = -i(2D_1A - A + A^2\bar{A})e^{iT_0} - iA^3e^{3iT_0} + CC
+	\label{eq:u1_vdp_expandida}
+\end{equation}
+
+Para eliminar términos que producen términos seculares, requerimos la desaparición de los coeficientes de $\exp(\pm iT_0)$; es decir
+
+\begin{equation}
+	2D_1A = A - A^2\bar{A}
+	\label{eq:condicion_A_vdp}
+\end{equation}
+
+Entonces la solución de \eqref{eq:u1_vdp_expandida} es
+
+\begin{equation}
+	u_1 = B(T_1,T_2)e^{iT_0} + \frac{1}{32}iA^3e^{3iT_0} + CC
+	\label{eq:solucion_u1_vdp}
+\end{equation}
+
+Para resolver \eqref{eq:condicion_A_vdp}, hacemos
+
+\begin{equation}
+	A = \frac{1}{2}a(T_1,T_2)\exp[i\phi(T_1,T_2)]
+	\label{eq:A_vdp}
+\end{equation}
+
+Separando partes reales e imaginarias en \eqref{eq:condicion_A_vdp}, obtenemos
+
+\begin{align}
+	\frac{\partial a}{\partial T_1} &= \frac{1}{2}a(1 - \frac{1}{4}a^2) \label{eq:ecuacion_a_vdp} \\
+	\frac{\partial \phi}{\partial T_1} &= 0 \label{eq:ecuacion_phi_vdp}
+\end{align}
+
+Por lo tanto
+
+\begin{align}
+	a^2 &= \frac{4}{1 + (4/a_0^2 - 1)e^{-T_1}} \label{eq:solucion_a_vdp} \\
+	\phi &= \phi_0(T_2) \label{eq:solucion_phi_vdp}
+\end{align}
+
+Si estamos interesados en la primera aproximación a $u$, entonces consideramos $B$, $\phi$, y $a$ como constantes. Además, si $u(0) = a_0$ y $du(0)/dt = 0$, entonces
+
+\begin{equation}
+	u = a\cos t + O(\epsilon)
+	\label{eq:solucion_primera_aproximacion_vdp}
+\end{equation}
+
+donde
+
+\begin{equation}
+	a^2 = \frac{4}{1 + (4/a_0^2 - 1)e^{-\epsilon t}}
+	\label{eq:a_primera_aproximacion_vdp}
+\end{equation}
+
+lo cual está de acuerdo con la expansión obtenida en la Sección 5.4.2 usando la técnica de Krylov-Bogoliubov-Mitropolski.
+
+Para determinar la segunda aproximación, necesitamos determinar las funciones $B$, $\phi$, y $a$. Así, sustituimos $u_0$ y $u_1$ en \eqref{eq:u2_vdp} y obtenemos
+
+\begin{equation}
+	D_0^2u_2 + u_2 = Q(T_1,T_2)e^{iT_0} + \bar{Q}(T_1,T_2)e^{-iT_0} + NST
+	\label{eq:u2_vdp_expandida}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\begin{split}
+		Q = &-2iD_1B + i(1 - 2A\bar{A})B - iA^2B - 2iD_2A - D_1^2A \\
+		&+ (1 - 2A\bar{A})D_1A - A^2D_1\bar{A} + \frac{3}{8}A^3\bar{A}^2
+	\end{split}
+	\label{eq:Q_vdp}
+\end{equation}
+
+Los términos seculares se eliminarán si $Q = 0$. Para resolver \eqref{eq:Q_vdp} con $Q = 0$, hacemos $B = \frac{1}{2}ib\exp(i\phi)$ con $b$ real y $\phi$ definido en \eqref{eq:A_vdp}. Sustituimos $A$ y $B$ en \eqref{eq:Q_vdp} con $Q = 0$, separamos partes reales e imaginarias, y obtenemos
+
+\begin{align}
+	\frac{\partial a}{\partial T_2} &= 0, \quad \text{o} \quad a = a(T_1) \label{eq:ecuacion_a_T2_vdp} \\
+	2\frac{\partial b}{\partial T_1} - (1 - \frac{1}{4}a^2)b &= -2\frac{\partial^2 a}{\partial T_1^2} + \frac{1}{4}a(\frac{\partial a}{\partial T_1})^2 - \frac{1}{2}a(1 - \frac{1}{4}a^2)\frac{\partial a}{\partial T_1} - \frac{5}{128}a^5 \label{eq:ecuacion_b_vdp}
+\end{align}
+
+Con la ayuda de \eqref{eq:ecuacion_a_vdp}, \eqref{eq:ecuacion_b_vdp} puede expresarse en la forma
+
+\begin{equation}
+	\frac{d}{dT_1}\left(\frac{b}{a}\right) = \frac{1}{4}a^2 - \frac{1}{16}a^4 - \frac{1}{2}(1 - \frac{1}{4}a^2)^2 + (\frac{1}{4}a - \frac{1}{16}a^3)\frac{da}{dT_1}
+	\label{eq:ecuacion_b_sobre_a_vdp}
+\end{equation}
+
+Integrando, obtenemos
+
+\begin{equation}
+	\frac{b}{a} = -\frac{1}{32}a^3 + \frac{1}{8}aT_1 + \frac{11}{32}a - \frac{1}{8}a\ln a + ab_0(T_2)
+	\label{eq:solucion_b_sobre_a_vdp}
+\end{equation}
+
+Para que $u_1/u_0$ sea acotada para todo $T_1$, el coeficiente de $T_1$ en la expresión anterior para $b/a$ debe desaparecer. Esta condición da
+
+\begin{equation}
+	\frac{\partial \phi}{\partial T_2} = -\frac{1}{16}
+	\label{eq:condicion_phi_T2_vdp}
+\end{equation}
+
+donde $\phi_0 = -\frac{1}{16}T_2 + \phi_0$ es una constante. La expansión de $u$ a segunda aproximación es entonces
+
+\begin{equation}
+	\begin{split}
+		u = &a\cos[(1 - \frac{1}{16}\epsilon^2)t + \phi_0] \\
+		&-\epsilon\left\{\left(\frac{1}{32}\epsilon a^3 - \frac{11}{32}a + \frac{1}{8}a\ln a - ab_0\right)\sin[(1 - \frac{1}{16}\epsilon^2)t + \phi_0] \right. \\
+		&\left. +\frac{1}{32}a^3\sin 3[(1 - \frac{1}{16}\epsilon^2)t + \phi_0]\right\} + O(\epsilon^2)
+	\end{split}
+	\label{eq:solucion_segunda_aproximacion_vdp}
+\end{equation}
+
+donde $a$ está definida por \eqref{eq:solucion_a_vdp} y $b_0$ se considera una constante dentro del orden de error indicado. Con un error de $O(\epsilon^2)$, esta expresión puede escribirse como
+
+\begin{equation}
+	u = a\cos(t - \delta) - \frac{\epsilon a^3}{32}\sin 3(t - \delta) + O(\epsilon^2)
+	\label{eq:solucion_final_vdp}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\delta = \frac{1}{16}\epsilon^2t + \frac{1}{8}\epsilon a\ln a - \frac{11}{32}\epsilon a + \delta_0
+	\label{eq:delta_vdp}
+\end{equation}
+
+y $\delta_0 = -\phi_0 - \epsilon b_0 = $ una constante. Esta última forma de la solución está en pleno acuerdo con la obtenida en la Sección 5.4.2 usando el método de Krylov-Bogoliubov-Mitropolski.
+
+\subsection{Oscilaciones Forzadas de la Ecuación de Van der Pol}
+
+Consideramos a continuación la respuesta del oscilador de van der Pol, discutido en la sección anterior, a una fuerza externa periódica; es decir, las oscilaciones de la ecuación
+
+\begin{equation}
+	\frac{d^2u}{dt^2} + \omega_0^2u = \epsilon(1 - u^2)\frac{du}{dt} + K\cos\Lambda t
+	\label{eq:van_der_pol_forzado}
+\end{equation}
+
+donde $K$ y $\Lambda$ son constantes reales. Surgen cuatro casos dependiendo de si la excitación (fuerza externa) es "suave" [es decir, $K = O(\epsilon)$] o "fuerte" [es decir, $K = O(1)$], y si la excitación es resonante [es decir, $\Lambda - \omega_0 = O(\epsilon)$] o no resonante [es decir, $\Lambda - \omega_0 = O(1)$].
+
+\subsubsection{Excitación No Resonante Suave}
+
+En este caso $K = \epsilon k$, donde $k = O(1)$, y expresamos $\cos\Lambda t$ en la forma $\cos\Lambda T_0$. Para determinar una primera aproximación a $u$, hacemos
+
+\begin{equation}
+	u = u_0(T_0, T_1) + \epsilon u_1(T_0, T_1) + O(\epsilon^2)
+	\label{eq:expansion_vdp_forzado_suave}
+\end{equation}
+
+con $T_0 = t$ y $T_1 = \epsilon t$. Sustituyendo \eqref{eq:expansion_vdp_forzado_suave} en \eqref{eq:van_der_pol_forzado} e igualando los coeficientes de $\epsilon^0$ y $\epsilon$ en ambos lados, obtenemos
+
+\begin{align}
+	D_0^2u_0 + \omega_0^2u_0 &= 0 \label{eq:u0_vdp_forzado_suave} \\
+	D_0^2u_1 + \omega_0^2u_1 &= -2D_0D_1u_0 + (1 - u_0^2)D_0u_0 + k\cos\Lambda T_0 \label{eq:u1_vdp_forzado_suave}
+\end{align}
+
+La solución de \eqref{eq:u0_vdp_forzado_suave} es
+
+\begin{equation}
+	u_0 = A(T_1)e^{i\omega_0T_0} + \bar{A}(T_1)e^{-i\omega_0T_0}
+	\label{eq:solucion_u0_vdp_forzado_suave}
+\end{equation}
+
+Sustituyendo $u_0$ en \eqref{eq:u1_vdp_forzado_suave} da
+
+\begin{equation}
+	\begin{split}
+		D_0^2u_1 + \omega_0^2u_1 = &i\omega_0(-2A' + A - A^2\bar{A})e^{i\omega_0T_0} \\
+		&+ \frac{1}{2}ke^{i\Lambda T_0} - i\omega_0A^3e^{3i\omega_0T_0} + CC
+	\end{split}
+	\label{eq:u1_vdp_forzado_suave_expandida}
+\end{equation}
+
+Para que no haya términos seculares, requerimos que
+
+\begin{equation}
+	2A' = A - A^2\bar{A}
+	\label{eq:condicion_A_vdp_forzado_suave}
+\end{equation}
+
+donde la prima denota diferenciación con respecto a $T_1$. Entonces la solución de \eqref{eq:u1_vdp_forzado_suave_expandida} es
+
+\begin{equation}
+	u_1 = B(T_1)e^{i\omega_0T_0} + \frac{1}{2}k\frac{e^{i\Lambda T_0}}{\omega_0^2 - \Lambda^2} + \frac{1}{32\omega_0^2}iA^3e^{3i\omega_0T_0} + CC
+	\label{eq:solucion_u1_vdp_forzado_suave}
+\end{equation}
+
+Haciendo $A = \frac{1}{2}a\exp(i\phi)$ en \eqref{eq:condicion_A_vdp_forzado_suave}, separando partes reales e imaginarias, y resolviendo las ecuaciones resultantes, encontramos que $\phi$ es una constante, mientras que $a$ está dada por \eqref{eq:solucion_a_vdp}.
+
+Por lo tanto, a primera aproximación
+
+\begin{equation}
+	u = a\cos\omega_0t + O(\epsilon)
+	\label{eq:solucion_primera_aproximacion_vdp_forzado_suave}
+\end{equation}
+
+donde $a$ está dada por \eqref{eq:solucion_a_vdp}.
+
+Las ecuaciones \eqref{eq:solucion_a_vdp} y \eqref{eq:solucion_primera_aproximacion_vdp_forzado_suave} muestran que, a primera aproximación, ni la fase ni la amplitud se ven afectadas por la presencia de una excitación no resonante suave. Además, la respuesta natural (es decir, el caso con $k = 0$) domina la respuesta forzada, como se esperaba, ya que la función forzante es suave. Sin embargo, a medida que la frecuencia forzante $\Lambda$ se acerca a la frecuencia natural $\omega_0$, la respuesta forzada se vuelve más significativa y se acerca al infinito como se puede ver en \eqref{eq:solucion_u1_vdp_forzado_suave}, y la expansión anterior ya no es válida.
+
+\subsubsection{Excitación No Resonante Fuerte}
+
+En este caso $K = O(1)$ y \eqref{eq:u0_vdp_forzado_suave} y \eqref{eq:u1_vdp_forzado_suave} se modifican a
+
+\begin{align}
+	D_0^2u_0 + \omega_0^2u_0 &= K\cos\Lambda T_0 \label{eq:u0_vdp_forzado_fuerte} \\
+	D_0^2u_1 + \omega_0^2u_1 &= -2D_0D_1u_0 + (1 - u_0^2)D_0u_0 \label{eq:u1_vdp_forzado_fuerte}
+\end{align}
+
+La solución de \eqref{eq:u0_vdp_forzado_fuerte} es
+
+\begin{equation}
+	u_0 = A(T_1)e^{i\omega_0T_0} + \bar{A}(T_1)e^{-i\omega_0T_0} + \frac{K}{\omega_0^2 - \Lambda^2}\cos\Lambda T_0
+	\label{eq:solucion_u0_vdp_forzado_fuerte}
+\end{equation}
+
+Sustituyendo $u_0$ en \eqref{eq:u1_vdp_forzado_fuerte} da
+
+\begin{equation}
+	D_0^2u_1 + \omega_0^2u_1 = i\omega_0[-2A' + A\eta - A^2\bar{A}]e^{i\omega_0T_0} + CC + NST
+	\label{eq:u1_vdp_forzado_fuerte_expandida}
+\end{equation}
+
+donde $\eta = 1 - K^2/2(\omega_0^2 - \Lambda^2)^2$. Para eliminar los términos seculares, requerimos que
+
+\begin{equation}
+	2A' = A\eta - A^2\bar{A}
+	\label{eq:condicion_A_vdp_forzado_fuerte}
+\end{equation}
+
+Para resolver \eqref{eq:condicion_A_vdp_forzado_fuerte}, hacemos $A = \frac{1}{2}a\exp(i\phi)$, separamos partes reales e imaginarias, y obtenemos $\phi = $ una constante y
+
+\begin{equation}
+	\frac{da}{dT_1} = \frac{1}{4}a(\eta - \frac{1}{4}a^2)
+	\label{eq:ecuacion_a_vdp_forzado_fuerte}
+\end{equation}
+
+La solución de \eqref{eq:ecuacion_a_vdp_forzado_fuerte} se puede obtener por separación de variables para ser
+
+\begin{equation}
+	\ln a^2 - \ln(\eta - \frac{1}{4}a^2) = \eta T_1 + \text{una constante}
+	\label{eq:solucion_a_vdp_forzado_fuerte}
+\end{equation}
+
+Si $u(0) = a_0 + [K/(\omega_0^2-\Lambda^2)]$ y $du(0)/dt = 0$, la primera aproximación a $u$ está dada por
+
+\begin{equation}
+	u = a\cos\omega_0t + \frac{K}{\omega_0^2 - \Lambda^2}\cos\Lambda t + O(\epsilon)
+	\label{eq:solucion_primera_aproximacion_vdp_forzado_fuerte}
+\end{equation}
+
+donde
+
+\begin{equation}
+	a^2 = \frac{4\eta}{1 + (4\eta/a_0^2 - 1)e^{-\eta T_1}}
+	\label{eq:a_vdp_forzado_fuerte}
+\end{equation}
+
+La solución en estado estacionario (es decir, $t \to \infty$) depende de si $\eta$ es positivo o negativo [es decir, $K^2$ es menor o mayor que $2(\omega_0^2-\Lambda^2)^2$]. Para $\eta$ negativo, $\exp(-\epsilon\eta t) \to \infty$ cuando $t \to \infty$, por lo tanto $a \to 0$ cuando $t \to \infty$, y la solución en estado estacionario es
+
+\begin{equation}
+	u_s = \frac{K}{\omega_0^2 - \Lambda^2}\cos\Lambda t + O(\epsilon)
+	\label{eq:solucion_estacionaria_vdp_forzado_fuerte_negativo}
+\end{equation}
+
+Sin embargo, para $\eta$ positivo, $\exp(-\epsilon\eta t) \to 0$ cuando $t \to \infty$, y $a \to 2\sqrt{\eta}$ cuando $t \to \infty$. Consecuentemente, la solución en estado estacionario es
+
+\begin{equation}
+	u_s = 2\sqrt{\eta}\cos\omega_0t + \frac{K}{\omega_0^2 - \Lambda^2}\cos\Lambda t + O(\epsilon)
+	\label{eq:solucion_estacionaria_vdp_forzado_fuerte_positivo}
+\end{equation}
+
+Por lo tanto, si $\eta$ es negativo, la respuesta natural se desvanece y la solución en estado estacionario consiste solo en la respuesta forzada. Sin embargo, si $\eta$ es positivo, la solución en estado estacionario es una combinación de las respuestas natural y forzada, con la amplitud de la respuesta natural modificada por la presencia de la excitación fuerte.
+
+\subsubsection{Excitación Resonante Suave}
+
+En este caso $K = \epsilon k$ con $k = O(1)$, y $\Lambda - \omega_0 = \epsilon\sigma$ con el detuning $\sigma = O(1)$. Para determinar una expansión asintótica válida en este caso, expresamos la excitación en términos de $T_0$ y $T_1$ según
+
+\begin{equation}
+	K\cos\Lambda t = \epsilon k\cos(\omega_0t + \epsilon\sigma t) = \epsilon k\cos(\omega_0T_0 + \sigma T_1)
+	\label{eq:excitacion_resonante_suave}
+\end{equation}
+
+Con esta expresión para la excitación, las ecuaciones para $u_0$ y $u_1$ de \eqref{eq:expansion_vdp_forzado_suave} son
+
+\begin{align}
+	D_0^2u_0 + \omega_0^2u_0 &= 0 \label{eq:u0_vdp_forzado_resonante_suave} \\
+	D_0^2u_1 + \omega_0^2u_1 &= -2D_0D_1u_0 + (1 - u_0^2)D_0u_0 + k\cos(\omega_0T_0 + \sigma T_1) \label{eq:u1_vdp_forzado_resonante_suave}
+\end{align}
+
+La solución general de \eqref{eq:u0_vdp_forzado_resonante_suave} es
+
+\begin{equation}
+	u_0 = A(T_1)e^{i\omega_0T_0} + \bar{A}(T_1)e^{-i\omega_0T_0}
+	\label{eq:solucion_u0_vdp_forzado_resonante_suave}
+\end{equation}
+
+Por lo tanto \eqref{eq:u1_vdp_forzado_resonante_suave} se convierte en
+
+\begin{equation}
+	\begin{split}
+		D_0^2u_1 + \omega_0^2u_1 = &[i\omega_0(-2A' + A - A^2\bar{A}) + \frac{1}{2}ke^{i\sigma T_1}]e^{i\omega_0T_0} \\
+		&- i\omega_0A^3e^{3i\omega_0T_0} + CC
+	\end{split}
+	\label{eq:u1_vdp_forzado_resonante_suave_expandida}
+\end{equation}
+
+Los términos proporcionales a $\exp(\pm i\omega_0T_0)$ en \eqref{eq:u1_vdp_forzado_resonante_suave_expandida} producen términos seculares con respecto a la escala de tiempo $T_0$ porque los términos entre corchetes son funciones solo de $T_1$. Para que $u_1/u_0$ sea acotada para todo $T_0$
+
+\begin{equation}
+	2A' = A - A^2\bar{A} - \frac{1}{2i\omega_0}ke^{i\sigma T_1}
+	\label{eq:condicion_A_vdp_forzado_resonante_suave}
+\end{equation}
+
+Para resolver \eqref{eq:condicion_A_vdp_forzado_resonante_suave}, hacemos $A = \frac{1}{2}a\exp(i\phi)$, separamos partes reales e imaginarias, y obtenemos
+
+\begin{align}
+	\frac{da}{dT_1} &= \frac{1}{2}a(1 - \frac{1}{4}a^2) + \frac{k}{2\omega_0}\sin\gamma \label{eq:ecuacion_a_vdp_forzado_resonante_suave} \\
+	a\frac{d\phi}{dT_1} &= -\frac{k}{2\omega_0}\cos\gamma \label{eq:ecuacion_phi_vdp_forzado_resonante_suave}
+\end{align}
+
+Para eliminar la dependencia temporal explícita de los lados derechos de \eqref{eq:ecuacion_a_vdp_forzado_resonante_suave} y \eqref{eq:ecuacion_phi_vdp_forzado_resonante_suave}, hacemos
+
+\begin{equation}
+	\gamma = \sigma T_1 - \phi
+	\label{eq:gamma_vdp_forzado_resonante_suave}
+\end{equation}
+
+Por lo tanto \eqref{eq:ecuacion_a_vdp_forzado_resonante_suave} y \eqref{eq:ecuacion_phi_vdp_forzado_resonante_suave} se convierten en
+
+\begin{align}
+	\frac{da}{dT_1} &= \frac{1}{2}a(1 - \frac{1}{4}a^2) + \frac{k}{2\omega_0}\sin\gamma \label{eq:ecuacion_a_final_vdp_forzado_resonante_suave} \\
+	\frac{d\gamma}{dT_1} &= \sigma + \frac{k}{2\omega_0a}\cos\gamma \label{eq:ecuacion_gamma_vdp_forzado_resonante_suave}
+\end{align}
+
+Las soluciones periódicas del oscilador excitado externamente \eqref{eq:van_der_pol_forzado} corresponden a las soluciones estacionarias de \eqref{eq:ecuacion_a_final_vdp_forzado_resonante_suave} y \eqref{eq:ecuacion_gamma_vdp_forzado_resonante_suave}; es decir, $da/dT_1 = d\gamma/dT_1 = 0$, o
+
+\begin{align}
+	\frac{1}{2}\tilde{a}(1 - \frac{1}{4}\tilde{a}^2) + \frac{k}{2\omega_0}\sin\tilde{\gamma} &= 0 \label{eq:condicion_estacionaria_a_vdp_forzado_resonante_suave} \\
+	\sigma + \frac{k}{2\omega_0\tilde{a}}\cos\tilde{\gamma} &= 0 \label{eq:condicion_estacionaria_gamma_vdp_forzado_resonante_suave}
+\end{align}
+
+donde la tilde se refiere a la solución estacionaria. La eliminación de $\tilde{\gamma}$ de estas ecuaciones lleva a la siguiente ecuación de respuesta en frecuencia
+
+\begin{equation}
+	p(1 - p)^2 + 4\sigma^2p = \tau = F^2, \quad p = \frac{1}{4}\tilde{a}^2, \quad \tau = \frac{k^2}{4\omega_0^4}
+	\label{eq:ecuacion_respuesta_frecuencia_vdp_forzado_resonante_suave}
+\end{equation}
+
+Para una amplitud de excitación $\epsilon k$ y frecuencia $\Lambda = \omega_0 + \epsilon\sigma$ dadas, \eqref{eq:ecuacion_respuesta_frecuencia_vdp_forzado_resonante_suave} proporciona $p$, por lo tanto la amplitud de las oscilaciones armónicas. A primera aproximación, la oscilación armónica está dada por
+
+\begin{equation}
+	u = \tilde{a}\cos(\omega_0t + \tilde{\gamma}) + O(\epsilon)
+	\label{eq:solucion_primera_aproximacion_vdp_forzado_resonante_suave}
+\end{equation}
+
+mientras que la frecuencia de oscilación es
+
+\begin{equation}
+	\Lambda = \omega_0 + \epsilon\sigma
+	\label{eq:frecuencia_oscilacion_vdp_forzado_resonante_suave}
+\end{equation}
+
+Por lo tanto, a medida que $\Lambda$ se acerca a $\omega_0$, la respuesta natural es arrastrada por la respuesta forzada. El resultado es una sincronización de la salida a la frecuencia de excitación.
+
+La estabilidad de estas oscilaciones armónicas se puede obtener haciendo
+
+\begin{equation}
+	a = \tilde{a} + \Delta a, \quad \gamma = \tilde{\gamma} + \Delta\gamma
+	\label{eq:perturbacion_estabilidad_vdp_forzado_resonante_suave}
+\end{equation}
+
+Desarrollando los lados derechos de \eqref{eq:ecuacion_a_final_vdp_forzado_resonante_suave} y \eqref{eq:ecuacion_gamma_vdp_forzado_resonante_suave} en potencias de $\Delta a$ y $\Delta\gamma$ y manteniendo solo términos lineales, tenemos
+
+\begin{align}
+	\frac{d(\Delta a)}{dT_1} &= \frac{1}{2}(1 - \frac{3}{4}\tilde{a}^2)\Delta a + \frac{k}{2\omega_0}\cos\tilde{\gamma}\Delta\gamma \label{eq:ecuacion_delta_a_vdp_forzado_resonante_suave} \\
+	\frac{d(\Delta\gamma)}{dT_1} &= -\frac{k}{2\omega_0\tilde{a}^2}\cos\tilde{\gamma}\Delta a - \frac{k}{2\omega_0\tilde{a}}\sin\tilde{\gamma}\Delta\gamma \label{eq:ecuacion_delta_gamma_vdp_forzado_resonante_suave}
+\end{align}
+
+Si hacemos $\Delta a \propto \exp(mT_1)$ y $\Delta\gamma \propto \exp(mT_1)$, entonces $m$ debe satisfacer la ecuación
+
+\begin{equation}
+	m^2 - \alpha m + \Lambda = 0
+	\label{eq:ecuacion_caracteristica_estabilidad_vdp_forzado_resonante_suave}
+\end{equation}
+
+donde
+
+\begin{align}
+	\alpha &= \frac{1}{2}(1 - \frac{3}{4}\tilde{a}^2) = \frac{1}{2}(1 - 3p) \label{eq:alpha_estabilidad_vdp_forzado_resonante_suave} \\
+	\Lambda &= \pm(1 - 4p + 3p^2) + \frac{k^2}{4\omega_0^2\tilde{a}^2} = \pm(1 - 4p + 3p^2) + \frac{\tau}{p} \label{eq:lambda_estabilidad_vdp_forzado_resonante_suave}
+\end{align}
+
+donde se ha hecho uso de \eqref{eq:condicion_estacionaria_a_vdp_forzado_resonante_suave} y \eqref{eq:condicion_estacionaria_gamma_vdp_forzado_resonante_suave}. El discriminante de \eqref{eq:ecuacion_caracteristica_estabilidad_vdp_forzado_resonante_suave} es
+
+\begin{equation}
+	D = \alpha^2 - 4\Lambda
+	\label{eq:discriminante_estabilidad_vdp_forzado_resonante_suave}
+\end{equation}
+
+Los lugares geométricos $\alpha = \Lambda = D = 0$ se llaman separatrices y se muestran en la Figura 6-1. El lugar geométrico $\Lambda = 0$ es una elipse cuyo centro es $p = 2/3$, $\sigma = 0$, mientras que el lugar geométrico $D = 0$ son las dos líneas rectas $p = \pm 2\sigma$. Los puntos interiores de la elipse corresponden a puntos de silla, por lo tanto las oscilaciones armónicas correspondientes son inestables. Los puntos exteriores a la elipse son nodos si $D \geq 0$ y focos si $D < 0$. Las oscilaciones armónicas correspondientes a estos puntos son estables o inestables según si $p$ es mayor o menor que $1/2$.
+
+\subsubsection{Excitación Resonante Fuerte}
+
+El análisis para este caso se puede obtener como un caso especial del caso anterior, con $k = K/\epsilon$, donde la amplitud de excitación $K = O(1)$. Por lo tanto, $k$ es muy grande porque $\epsilon$ es pequeño. Así, para $\sigma$ cerca de cero, \eqref{eq:ecuacion_respuesta_frecuencia_vdp_forzado_resonante_suave} muestra que existe solo una amplitud $p$ para la oscilación armónica y es estable. A medida que $k$ aumenta sin límite, la amplitud también aumenta sin límite.
+
+\subsection{Resonancia Paramétrica - Ecuación de Mathieu}
+
+Volvamos a la ecuación de Mathieu discutida en la Sección 3.1.2, a saber
+
+\begin{equation}
+	\ddot{u} + (\delta + \epsilon\cos 2t)u = 0
+	\label{eq:mathieu}
+\end{equation}
+
+Según la teoría de Floquet de ecuaciones diferenciales lineales con coeficientes periódicos, el plano $\delta$-$\epsilon$ se divide en regiones de estabilidad e inestabilidad que están separadas por curvas de transición a lo largo de las cuales $u$ es periódica con un período de $\pi$ o $2\pi$. En la Sección 3.1.2, determinamos aproximaciones a las curvas de transición usando el método de Lindstedt-Poincaré. En esta sección encontramos no solo las curvas de transición sino también las soluciones, por lo tanto el grado de estabilidad o inestabilidad, como encontramos en la Sección 3.1.3 usando el método de Whittaker. Para este fin, hacemos
+
+\begin{equation}
+	\delta = \omega_0^2 \quad \text{con } \omega_0 \text{ positivo}
+	\label{eq:delta_mathieu}
+\end{equation}
+
+y asumimos que
+
+\begin{equation}
+	u = u_0(T_0, T_1, T_2) + \epsilon u_1(T_0, T_1, T_2) + \epsilon^2 u_2(T_0, T_1, T_2) + \cdots
+	\label{eq:expansion_mathieu}
+\end{equation}
+
+Se deben distinguir diferentes casos dependiendo de si $\omega_0$ está cerca o lejos de un entero $n$.
+
+\subsubsection{Solución para $\omega_0$ Lejos de un Entero}
+
+Expresamos $\cos 2t$ en términos de la escala de tiempo $T_0$ como $\cos 2T_0$. Sustituyendo \eqref{eq:expansion_mathieu} en \eqref{eq:mathieu} e igualando los coeficientes de $\epsilon^0$, $\epsilon$, y $\epsilon^2$ a cero, obtenemos
+
+\begin{align}
+	D_0^2u_0 + \omega_0^2u_0 &= 0 \label{eq:u0_mathieu} \\
+	D_0^2u_1 + \omega_0^2u_1 &= -2D_0D_1u_0 - u_0\cos 2T_0 \label{eq:u1_mathieu} \\
+	D_0^2u_2 + \omega_0^2u_2 &= -2D_0D_1u_1 - (D_1^2 + 2D_0D_2)u_0 - u_1\cos 2T_0 \label{eq:u2_mathieu}
+\end{align}
+
+La solución de \eqref{eq:u0_mathieu} es
+
+\begin{equation}
+	u_0 = A(T_1,T_2)e^{i\omega_0T_0} + \bar{A}(T_1,T_2)e^{-i\omega_0T_0}
+	\label{eq:solucion_u0_mathieu}
+\end{equation}
+
+Sustituyendo $u_0$ en \eqref{eq:u1_mathieu} da
+
+\begin{equation}
+	\begin{split}
+		D_0^2u_1 + \omega_0^2u_1 = &-2i\omega_0D_1Ae^{i\omega_0T_0} - \frac{1}{2}Ae^{i(\omega_0+2)T_0} \\
+		&- \frac{1}{2}Ae^{i(\omega_0-2)T_0} + CC
+	\end{split}
+	\label{eq:u1_mathieu_expandida}
+\end{equation}
+
+Como $\omega_0$ está lejos de 1, los términos seculares se eliminarán si $D_1A = 0$ o $A = A(T_2)$. Entonces la solución de $u_1$ es
+
+\begin{equation}
+	u_1 = -\frac{1}{4(\omega_0^2-1)}Ae^{i(\omega_0+2)T_0} - \frac{1}{4(\omega_0^2-4)}Ae^{i(\omega_0-2)T_0} + CC
+	\label{eq:solucion_u1_mathieu}
+\end{equation}
+
+Sustituyendo $u_0$ y $u_1$ en \eqref{eq:u2_mathieu} da
+
+\begin{equation}
+	D_0^2u_2 + \omega_0^2u_2 = -Q(T_1,T_2)e^{i\omega_0T_0} + CC
+	\label{eq:u2_mathieu_expandida}
+\end{equation}
+
+donde
+
+\begin{equation}
+	Q = 2i\omega_0D_2A + \frac{1}{16\omega_0(\omega_0^2-1)}A
+	\label{eq:Q_mathieu}
+\end{equation}
+
+Los términos seculares se eliminarán si
+
+\begin{equation}
+	2i\omega_0D_2A = -\frac{1}{16\omega_0(\omega_0^2-1)}A
+	\label{eq:condicion_A_mathieu}
+\end{equation}
+
+Si hacemos $A = \frac{1}{2}ae^{i\phi}$ y separamos partes reales e imaginarias, obtenemos
+
+\begin{align}
+	\frac{da}{dT_2} &= 0 \label{eq:ecuacion_a_mathieu} \\
+	\frac{d\phi}{dT_2} &= -\frac{1}{16\omega_0^2(\omega_0^2-1)} \label{eq:ecuacion_phi_mathieu}
+\end{align}
+
+Por lo tanto
+
+\begin{align}
+	a &= \text{una constante} \label{eq:solucion_a_mathieu} \\
+	\phi &= -\frac{1}{16\omega_0^2(\omega_0^2-1)}T_2 + \phi_0 \label{eq:solucion_phi_mathieu}
+\end{align}
+
+donde $\phi_0$ es una constante. Con \eqref{eq:condicion_A_mathieu} la solución de \eqref{eq:u2_mathieu_expandida} es
+
+\begin{equation}
+	u_2 = \frac{1}{32\omega_0(\omega_0+1)(\omega_0+2)}Ae^{i(\omega_0+4)T_0} + \frac{1}{128(\omega_0-1)(\omega_0-2)}Ae^{i(\omega_0-4)T_0} + CC
+	\label{eq:solucion_u2_mathieu}
+\end{equation}
+
+En resumen, hasta $O(\epsilon^2)$, la solución para $u$ es
+
+\begin{equation}
+	u = a\cos(\omega t + \phi_0)
+	\label{eq:solucion_final_mathieu}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\omega = \omega_0 - \frac{\epsilon^2}{16\omega_0(\omega_0^2-1)} + O(\epsilon^3)
+	\label{eq:omega_mathieu}
+\end{equation}
+
+Enfatizamos nuevamente que esta expansión es válida solo cuando $\omega_0$ está lejos de 1 y 2. A medida que $\omega_0 \to 1$ o 2, $u \to \infty$. Una expansión válida cerca de $\omega_0 = 1$ se obtiene a continuación.
+
+\subsubsection{Solución para $\omega_0$ Cerca de 1}
+
+En este caso hacemos
+
+\begin{equation}
+	\delta = 1 + \epsilon\delta_1 + \epsilon^2\delta_2 + \cdots
+	\label{eq:delta_mathieu_cerca_1}
+\end{equation}
+
+con $\delta_1$ y $\delta_2 = O(1)$. La ecuación \eqref{eq:delta_mathieu_cerca_1} modifica \eqref{eq:u0_mathieu} a \eqref{eq:u2_mathieu} en
+
+\begin{align}
+	D_0^2u_0 + u_0 &= 0 \label{eq:u0_mathieu_cerca_1} \\
+	D_0^2u_1 + u_1 &= -2D_0D_1u_0 - \delta_1u_0 - u_0\cos 2T_0 \label{eq:u1_mathieu_cerca_1} \\
+	D_0^2u_2 + u_2 &= -2D_0D_1u_1 - (D_1^2 + 2D_0D_2)u_0 - \delta_1u_1 - \delta_2u_0 - u_1\cos 2T_0 \label{eq:u2_mathieu_cerca_1}
+\end{align}
+
+La solución de \eqref{eq:u0_mathieu_cerca_1} es
+
+\begin{equation}
+	u_0 = A(T_1,T_2)e^{iT_0} + \bar{A}(T_1,T_2)e^{-iT_0}
+	\label{eq:solucion_u0_mathieu_cerca_1}
+\end{equation}
+
+Sustituyendo $u_0$ en \eqref{eq:u1_mathieu_cerca_1} da
+
+\begin{equation}
+	D_0^2u_1 + u_1 = (-2iD_1A - \delta_1A - \frac{1}{2}A)e^{iT_0} - \frac{1}{2}Ae^{3iT_0} + CC
+	\label{eq:u1_mathieu_cerca_1_expandida}
+\end{equation}
+
+Los términos seculares con respecto a la escala de tiempo $T_0$ se eliminarán si
+
+\begin{equation}
+	D_1A = \frac{1}{2i}(\delta_1A + \frac{1}{2}A)
+	\label{eq:condicion_A_mathieu_cerca_1}
+\end{equation}
+
+Entonces la solución de \eqref{eq:u1_mathieu_cerca_1_expandida} es
+
+\begin{equation}
+	u_1 = -\frac{1}{8}Ae^{3iT_0} - \frac{1}{8}\bar{A}e^{-3iT_0}
+	\label{eq:solucion_u1_mathieu_cerca_1}
+\end{equation}
+
+Para resolver \eqref{eq:condicion_A_mathieu_cerca_1}, asumimos que
+
+\begin{equation}
+	A = A_1 + iA_2
+	\label{eq:A_real_imaginario_mathieu}
+\end{equation}
+
+donde $A_1$ y $A_2$ son reales, y separamos partes reales e imaginarias para obtener
+
+\begin{align}
+	\frac{\partial A_1}{\partial T_1} &= \frac{1}{2}(\delta_1 + \frac{1}{2})A_2 \label{eq:ecuacion_A1_mathieu} \\
+	\frac{\partial A_2}{\partial T_1} &= -\frac{1}{2}(\delta_1 + \frac{1}{2})A_1 \label{eq:ecuacion_A2_mathieu}
+\end{align}
+
+La solución de estas ecuaciones es
+
+\begin{align}
+	A_1 &= a_1(T_2)e^{\gamma_1T_1} + a_2(T_2)e^{-\gamma_1T_1} \label{eq:solucion_A1_mathieu} \\
+	A_2 &= -2\gamma_1[a_1(T_2)e^{\gamma_1T_1} - a_2(T_2)e^{-\gamma_1T_1}] \label{eq:solucion_A2_mathieu}
+\end{align}
+
+donde
+
+\begin{equation}
+	\gamma_1^2 = \frac{1}{4}(\delta_1 + \frac{1}{2})^2
+	\label{eq:gamma1_mathieu}
+\end{equation}
+
+Aquí $a_1$ y $a_2$ son funciones reales valoradas de la escala de tiempo $T_2$; sin embargo, a primera aproximación, $a_1$ y $a_2$ son constantes.
+
+Las ecuaciones \eqref{eq:solucion_A1_mathieu} a \eqref{eq:gamma1_mathieu} muestran que $A$ crece exponencialmente con $T_1$ (es decir, con $t$) si $\gamma_1$ es real o $|\delta_1| \leq 1/2$, y $A$ oscila con $T_1$ si $\gamma_1$ es imaginario o $|\delta_1| \geq 1/2$ (en este caso la solución se escribe en términos de $\cos\gamma_1T_1$ y $\sin\gamma_1T_1$ para mantener $A_1$ y $A_2$ reales). Por lo tanto, los límites (curvas de transición) que separan los dominios estables de los inestables que emanan de $\delta = 1$, $\epsilon = 0$ están dados a primera aproximación por $\delta_1 = \pm 1/2$ o
+
+\begin{equation}
+	\delta = 1 \pm \frac{1}{2}\epsilon + O(\epsilon^2)
+	\label{eq:curvas_transicion_mathieu}
+\end{equation}
+
+Para determinar una segunda aproximación a $u$ y las curvas de transición, sustituimos $u_0$ y $u_1$ en \eqref{eq:u2_mathieu_cerca_1} y obtenemos
+
+\begin{equation}
+	D_0^2u_2 + u_2 = -[2iD_2A + D_1^2A + (\delta_1 + \delta_2)A]e^{iT_0} + CC + NST
+	\label{eq:u2_mathieu_cerca_1_expandida}
+\end{equation}
+
+La condición que debe satisfacerse para que no haya términos seculares es
+
+\begin{equation}
+	2iD_2A + D_1^2A + (\delta_1 + \delta_2)A = 0
+	\label{eq:condicion_A2_mathieu_cerca_1}
+\end{equation}
+
+Como $A = A_1 + iA_2$, \eqref{eq:condicion_A2_mathieu_cerca_1} da las siguientes ecuaciones para $A_1$ y $A_2$ al separar las partes reales e imaginarias
+
+\begin{align}
+	\frac{\partial A_1}{\partial T_2} + \alpha A_1 &= 0 \label{eq:ecuacion_A1_T2_mathieu} \\
+	-2\frac{\partial A_2}{\partial T_2} + \alpha A_2 &= 0 \label{eq:ecuacion_A2_T2_mathieu}
+\end{align}
+
+donde
+
+\begin{equation}
+	\alpha = \gamma_1^2 + \delta_1 + \delta_2
+	\label{eq:alpha_mathieu}
+\end{equation}
+
+Reemplazando $A_1$ y $A_2$ por sus expresiones de \eqref{eq:solucion_A1_mathieu} y \eqref{eq:solucion_A2_mathieu} e igualando los coeficientes de $\exp(\pm\gamma_1T_1)$ a cero porque son funciones de $T_2$, obtenemos
+
+\begin{align}
+	\frac{da_1}{dT_2} + \alpha a_1 &= 0, \quad 2\gamma_1\frac{da_1}{dT_2} - \frac{4\gamma_1^2}{4\gamma_1^2 - \delta_1 - \frac{1}{2}}a_1 + \alpha a_1 = 0 \label{eq:ecuaciones_a1_mathieu} \\
+	\frac{da_2}{dT_2} + \alpha a_2 &= 0, \quad -2\gamma_1\frac{da_2}{dT_2} - \frac{4\gamma_1^2}{4\gamma_1^2 - \delta_1 - \frac{1}{2}}a_2 + \alpha a_2 = 0 \label{eq:ecuaciones_a2_mathieu}
+\end{align}
+
+Estas ecuaciones llevan a
+
+\begin{equation}
+	\frac{da_1}{dT_2} = \frac{da_2}{dT_2} = 0 \quad \text{o} \quad a_1 = \text{constante y } a_2 = \text{constante}
+	\label{eq:solucion_a1_a2_mathieu}
+\end{equation}
+
+y
+
+\begin{equation}
+	\alpha = \frac{4\gamma_1^2}{4\gamma_1^2 - \delta_1 - \frac{1}{2}}
+	\label{eq:alpha_final_mathieu}
+\end{equation}
+
+Por lo tanto, a segunda aproximación, la solución está dada por \eqref{eq:solucion_A1_mathieu} a \eqref{eq:alpha_final_mathieu}, que fueron obtenidas por el método de Whittaker.
+
+\subsection{El Oscilador de Van der Pol con Limitación de Amplitud Retardada}
+
+El siguiente ejemplo es un problema de tercer orden a diferencia de los ejemplos anteriores que son de segundo orden. Está dado en cantidades adimensionales por
+
+\begin{align}
+	\frac{d^2v}{dt^2} + \omega_0^2v &= \mu p \frac{de}{dt} \label{eq:van_der_pol_retardado_1} \\
+	\tau\frac{dZ}{dt} + Z &= v^2 \label{eq:van_der_pol_retardado_2}
+\end{align}
+
+donde $v$ es voltaje, $t$ es tiempo, $e$ es excitación, $\omega_0$ es frecuencia natural, $\tau$ es tiempo de retardo, $Z$ es salida del filtro paso bajo, y $\mu$ es una medida de la ganancia del lazo servo. Este oscilador fue estudiado primero por Golay (1964) y luego por Scott (1966) y Nayfeh (1967b, 1968). Consideramos aquí oscilaciones libres (es decir, $e = 0$) y referimos al lector a Nayfeh (1968) para el caso de oscilación forzada.
+
+Para determinar una primera aproximación a las ecuaciones anteriores, asumimos que
+
+\begin{align}
+	v &= v_0(T_0, T_1) + \mu v_1(T_0, T_1) + \cdots \label{eq:expansion_v_van_der_pol_retardado} \\
+	Z &= Z_0(T_0, T_1) + \mu Z_1(T_0, T_1) + \cdots \label{eq:expansion_Z_van_der_pol_retardado} \\
+	p &= p_0(T_0, T_1) + \mu p_1(T_0, T_1) + \cdots \label{eq:expansion_p_van_der_pol_retardado}
+\end{align}
+
+Sustituyendo \eqref{eq:expansion_v_van_der_pol_retardado} a \eqref{eq:expansion_p_van_der_pol_retardado} en \eqref{eq:van_der_pol_retardado_1} y \eqref{eq:van_der_pol_retardado_2} e igualando coeficientes de potencias iguales de $\mu$, obtenemos
+
+\begin{align}
+	D_0^2v_0 + \omega_0^2v_0 &= 0 \label{eq:v0_van_der_pol_retardado} \\
+	\tau D_0Z_0 + Z_0 &= v_0^2 \label{eq:Z0_van_der_pol_retardado} \\
+	D_0^2v_1 + \omega_0^2v_1 &= 2\omega_0[(1 - Z_0)v_0 - D_0p_0] \label{eq:v1_van_der_pol_retardado} \\
+	\tau D_0Z_1 + Z_1 &= -\tau D_1Z_0 + 2v_0v_1 \label{eq:Z1_van_der_pol_retardado}
+\end{align}
+
+La solución de \eqref{eq:v0_van_der_pol_retardado} es
+
+\begin{equation}
+	v_0 = A(T_1)e^{i\omega_0T_0} + \bar{A}(T_1)e^{-i\omega_0T_0}
+	\label{eq:solucion_v0_van_der_pol_retardado}
+\end{equation}
+
+Sustituyendo $v_0$ en \eqref{eq:Z0_van_der_pol_retardado} da
+
+\begin{equation}
+	\tau D_0Z_0 + Z_0 = A\bar{A} + A^2e^{2i\omega_0T_0} + CC
+	\label{eq:Z0_van_der_pol_retardado_expandida}
+\end{equation}
+
+Su solución es
+
+\begin{equation}
+	Z_0 = B(T_1)e^{-T_0/\tau} + 2A\bar{A} + \frac{A^2e^{2i\omega_0T_0}}{1 + 2i\omega_0\tau} + \frac{\bar{A}^2e^{-2i\omega_0T_0}}{1 - 2i\omega_0\tau}
+	\label{eq:solucion_Z0_van_der_pol_retardado}
+\end{equation}
+
+Con $v_0$ y $Z_0$ conocidos \eqref{eq:v1_van_der_pol_retardado} se convierte en
+
+\begin{equation}
+	\begin{split}
+		D_0^2v_1 + \omega_0^2v_1 = &2\omega_0\left[A - 2A^2\bar{A} - \frac{A^3}{1 + 2i\omega_0\tau} - D_1A\right]e^{i\omega_0T_0} \\
+		&- \frac{6i\omega_0A^3}{1 + 2i\omega_0\tau}e^{3i\omega_0T_0} + CC
+	\end{split}
+	\label{eq:v1_van_der_pol_retardado_expandida}
+\end{equation}
+
+donde
+
+\begin{equation}
+	Q = A - 2A^2\bar{A} - \frac{A^3}{1 + 2i\omega_0\tau} - D_1A
+	\label{eq:Q_van_der_pol_retardado}
+\end{equation}
+
+Los términos seculares se eliminarán si $Q = 0$. Entonces la solución para $v_1$ es
+
+\begin{equation}
+	v_1 = \frac{2A\bar{B}\tau}{1 - i\omega_0\tau}e^{[i\omega_0-(1/\tau)]T_0} + \frac{3iA^3}{4\omega_0(1 + 2i\omega_0\tau)}e^{3i\omega_0T_0} + CC
+	\label{eq:solucion_v1_van_der_pol_retardado}
+\end{equation}
+
+Para resolver la ecuación $Q = 0$, hacemos $A = \frac{1}{2}ae^{i\phi}$ con $a$ y $\phi$ reales, separamos partes reales e imaginarias en \eqref{eq:Q_van_der_pol_retardado}, y obtenemos
+
+\begin{align}
+	\frac{\partial a}{\partial T_1} &= \frac{1}{2}a(1 - \frac{1}{4}a^2\alpha_1) \label{eq:ecuacion_a_van_der_pol_retardado} \\
+	\frac{\partial \phi}{\partial T_1} &= -\frac{1}{8}a^2\alpha_2 \label{eq:ecuacion_phi_van_der_pol_retardado}
+\end{align}
+
+donde
+
+\begin{align}
+	\alpha_1 &= \frac{3 + 8\omega_0^2\tau^2}{1 + 4\omega_0^2\tau^2} \label{eq:alpha1_van_der_pol_retardado} \\
+	\alpha_2 &= \frac{2\omega_0\tau}{1 + 4\omega_0^2\tau^2} \label{eq:alpha2_van_der_pol_retardado}
+\end{align}
+
+Las soluciones de \eqref{eq:ecuacion_a_van_der_pol_retardado} y \eqref{eq:ecuacion_phi_van_der_pol_retardado} son
+
+\begin{align}
+	a^2 &= \frac{4}{1 + (4/a_0^2 - 1)e^{-T_1}} \label{eq:solucion_a_van_der_pol_retardado} \\
+	\phi &= -\frac{1}{2}\alpha_2\ln\frac{a^2}{4} + \phi_0 \label{eq:solucion_phi_van_der_pol_retardado}
+\end{align}
+
+donde $a_0$ es la amplitud inicial y $\phi_0$ es una constante.
+
+Para determinar $B$, sustituimos $v_0$, $Z_0$, y $v_1$ en \eqref{eq:Z1_van_der_pol_retardado}; es decir
+
+\begin{equation}
+	\begin{split}
+		\tau D_0Z_1 + Z_1 = &-\tau D_1B e^{-T_0/\tau} - 4\tau A\bar{A}D_1A \\
+		&+ 2ABe^{[i\omega_0-(1/\tau)]T_0} + 2\bar{A}\bar{B}e^{[-i\omega_0-(1/\tau)]T_0} + NST
+	\end{split}
+	\label{eq:Z1_van_der_pol_retardado_expandida}
+\end{equation}
+
+Para que $Z_1/Z_0$ sea acotada para todo $T_0$, el coeficiente de $\exp(-T_0/\tau)$ debe desaparecer; por lo tanto
+
+\begin{equation}
+	D_1B = -4A\bar{A}D_1A + \frac{2}{\tau}(AB + \bar{A}\bar{B})
+	\label{eq:condicion_B_van_der_pol_retardado}
+\end{equation}
+
+donde hemos usado $A = \frac{1}{2}ae^{i\phi}$. Sustituyendo $a^2$ de \eqref{eq:solucion_a_van_der_pol_retardado} en \eqref{eq:condicion_B_van_der_pol_retardado} y resolviendo la ecuación resultante, obtenemos
+
+\begin{equation}
+	B = b_0e^{-\beta T_1}
+	\label{eq:solucion_B_van_der_pol_retardado}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\beta = \frac{1}{2}(1 - \frac{1}{2}\alpha_1)
+	\label{eq:beta_van_der_pol_retardado}
+\end{equation}
+
+Por lo tanto, a primera aproximación
+
+\begin{align}
+	v &= a\cos(\omega_0t + \phi) + O(\mu) \label{eq:solucion_v_van_der_pol_retardado} \\
+	Z &= \frac{a^2}{2} + \frac{a^2}{2\sqrt{1 + 4\omega_0^2\tau^2}}\cos[2\omega_0t + 2\phi - \tan^{-1}(2\omega_0\tau)] + 2b_0e^{-\beta\mu t} + O(\mu) \label{eq:solucion_Z_van_der_pol_retardado}
+\end{align}
+
+con $a$, $\phi$, y $B$ dados, respectivamente, por \eqref{eq:solucion_a_van_der_pol_retardado}, \eqref{eq:solucion_phi_van_der_pol_retardado}, y \eqref{eq:solucion_B_van_der_pol_retardado}.
+
+\subsection{La Estabilidad de los Puntos Triangulares en el Problema Restringido Elíptico de Tres Cuerpos}
+
+Los siguientes dos ejemplos son problemas de cuarto orden: uno es lineal y el segundo es no lineal. Consideremos primero la estabilidad de los puntos triangulares en el problema restringido de tres cuerpos tratado en las Secciones 3.1.4 y 3.1.5 usando las técnicas de Lindstedt-Poincaré y Whittaker. Este problema fue tratado primero usando el método de escalas múltiples por Alfriend y Rand (1969). El problema se reduce matemáticamente a la estabilidad de las soluciones de (3.1.63) a (3.1.65). En esta sección usamos el método de escalas múltiples para determinar las curvas de transición que intersectan el eje $\mu$ en $\mu_0 = (1 - 2\sqrt{5/3})/2$ y determinar el comportamiento de $x$ e $y$ cerca de estas curvas de transición.
+
+Establecemos $\cos f = \cos T_0$ y asumimos que
+
+\begin{align}
+	x &= x_0(T_0,T_1) + \epsilon x_1(T_0,T_1) + \cdots \label{eq:expansion_x_tres_cuerpos} \\
+	y &= y_0(T_0,T_1) + \epsilon y_1(T_0,T_1) + \cdots \label{eq:expansion_y_tres_cuerpos}
+\end{align}
+
+donde
+
+\begin{equation}
+	\mu = \mu_0 + \epsilon\mu_1 + \cdots
+	\label{eq:expansion_mu_tres_cuerpos}
+\end{equation}
+
+Por lo tanto
+
+\begin{equation}
+	T_0 = f \quad \text{y} \quad T_1 = \epsilon f
+	\label{eq:escalas_tiempo_tres_cuerpos}
+\end{equation}
+
+De aquí
+
+\begin{equation}
+	\frac{d}{df} = D_0 + \epsilon D_1 + \cdots, \quad D_n = \frac{\partial}{\partial T_n}
+	\label{eq:derivada_tres_cuerpos}
+\end{equation}
+
+Sustituyendo \eqref{eq:expansion_x_tres_cuerpos} a \eqref{eq:derivada_tres_cuerpos} en (3.1.63) a (3.1.65) e igualando coeficientes de $\epsilon^0$ y $\epsilon$ a cero, obtenemos
+
+Orden $\epsilon^0$
+
+\begin{align}
+	D_0^2x_0 - 2D_0y_0 - b_0x_0 &= 0 \label{eq:x0_tres_cuerpos} \\
+	D_0^2y_0 + 2D_0x_0 - a_0y_0 &= 0 \label{eq:y0_tres_cuerpos}
+\end{align}
+
+Orden $\epsilon$
+
+\begin{align}
+	D_0^2x_1 - 2D_0y_1 - b_0x_1 &= -2D_0D_1x_0 + 2D_1y_0 + b_1x_0 - b_0x_0\cos T_0 \label{eq:x1_tres_cuerpos} \\
+	D_0^2y_1 + 2D_0x_1 - a_0y_1 &= -2D_0D_1y_0 - 2D_1x_0 - b_1y_0 - a_0y_0\cos T_0 \label{eq:y1_tres_cuerpos}
+\end{align}
+
+donde $a_1$ y $b_1$ están dados por (3.1.71) y (3.1.72).
+
+La solución de \eqref{eq:x0_tres_cuerpos} y \eqref{eq:y0_tres_cuerpos} es
+
+\begin{align}
+	x_0 &= A(T_1)\cos\frac{T_0}{2} + B(T_1)\sin\frac{T_0}{2} \label{eq:solucion_x0_tres_cuerpos} \\
+	y_0 &= \sigma B(T_1)\cos\frac{T_0}{2} - \sigma A(T_1)\sin\frac{T_0}{2} \label{eq:solucion_y0_tres_cuerpos}
+\end{align}
+
+donde
+
+\begin{equation}
+	\sigma = (a_0 + \frac{1}{4})^{-1} = b_0 + \frac{1}{4} = 4(7 - 4\sqrt{3})
+	\label{eq:sigma_tres_cuerpos}
+\end{equation}
+
+La solución de orden cero determina los lados derechos de \eqref{eq:x1_tres_cuerpos} y \eqref{eq:y1_tres_cuerpos}. Así se convierten en
+
+\begin{align}
+	D_0^2x_1 - 2D_0y_1 - b_0x_1 &= P_1\cos\frac{T_0}{2} + Q_1\sin\frac{T_0}{2} + NST \label{eq:x1_tres_cuerpos_expandida} \\
+	D_0^2y_1 + 2D_0x_1 - a_0y_1 &= P_2\cos\frac{T_0}{2} + Q_2\sin\frac{T_0}{2} + NST \label{eq:y1_tres_cuerpos_expandida}
+\end{align}
+
+donde
+
+\begin{align}
+	P_1 &= (2\sigma^2 - 1)B' + (b_1 - \frac{1}{2}b_0)A \label{eq:P1_tres_cuerpos} \\
+	P_2 &= (\sigma - 2)A' - \sigma(b_1 + \frac{1}{2}a_0)B \label{eq:P2_tres_cuerpos} \\
+	Q_1 &= -(2\sigma^2 - 1)A' + (b_1 + \frac{1}{2}b_0)B \label{eq:Q1_tres_cuerpos} \\
+	Q_2 &= (\sigma - 2)B' + \sigma(b_1 - \frac{1}{2}a_0)A \label{eq:Q2_tres_cuerpos}
+\end{align}
+
+Para determinar una primera aproximación, no necesitamos resolver para $x_1$ e $y_1$ sino solo asegurar que $x_1/x_0$ e $y_1/y_0$ sean acotadas para todo $T_0$. Esta es la razón por la que detallamos los términos que producen términos seculares. Para eliminar los términos seculares, podemos encontrar la solución secular particular y luego determinar la condición para su desaparición. La solución particular resultante es de la forma
+
+\begin{equation}
+	x = 0, \quad y = R_1\cos\frac{T_0}{2} + S_1\sin\frac{T_0}{2}
+	\label{eq:solucion_particular_x_tres_cuerpos}
+\end{equation}
+
+o
+
+\begin{equation}
+	y = 0, \quad x = R_2\cos\frac{T_0}{2} + S_2\sin\frac{T_0}{2}
+	\label{eq:solucion_particular_y_tres_cuerpos}
+\end{equation}
+
+Así podemos determinar las condiciones para la eliminación de los términos seculares asumiendo una solución particular de la forma \eqref{eq:solucion_particular_x_tres_cuerpos} o \eqref{eq:solucion_particular_y_tres_cuerpos}. Los resultados de usar cualquiera de las formas son los mismos. Sustituyendo \eqref{eq:solucion_particular_x_tres_cuerpos} en \eqref{eq:x1_tres_cuerpos_expandida} y \eqref{eq:y1_tres_cuerpos_expandida} e igualando los coeficientes de $\cos(T_0/2)$ y $\sin(T_0/2)$ en ambos lados, obtenemos
+
+\begin{align}
+	R_1 &= Q_1, \quad S_1 = -P_1 \label{eq:R1S1_tres_cuerpos} \\
+	R_2 &= -\sigma P_2, \quad S_2 = -\sigma Q_2 \label{eq:R2S2_tres_cuerpos}
+\end{align}
+
+La eliminación de $R_1$ y $S_1$ de \eqref{eq:R1S1_tres_cuerpos} y \eqref{eq:R2S2_tres_cuerpos} lleva a las condiciones requeridas; es decir
+
+\begin{equation}
+	P_1 = \sigma Q_2, \quad Q_1 = -\sigma P_2
+	\label{eq:condiciones_tres_cuerpos}
+\end{equation}
+
+Sustituyendo $P_1$, $P_2$, $Q_1$, y $Q_2$ de \eqref{eq:P1_tres_cuerpos} a \eqref{eq:Q2_tres_cuerpos} en \eqref{eq:condiciones_tres_cuerpos} lleva a las siguientes dos ecuaciones para $A$ y $B$
+
+\begin{align}
+	(1 - 4\sigma + \sigma^2)A' + [(1 - \sigma^2)b_1 + \frac{1}{2}(b_0 - \sigma^2a_0)]B &= 0 \label{eq:ecuacion_A_tres_cuerpos} \\
+	(1 - 4\sigma + \sigma^2)B' - [(1 - \sigma^2)b_1 - \frac{1}{2}(b_0 - \sigma^2a_0)]A &= 0 \label{eq:ecuacion_B_tres_cuerpos}
+\end{align}
+
+Para resolver estas ecuaciones, hacemos
+
+\begin{align}
+	A &= a\exp(\gamma_1T_1) \label{eq:A_tres_cuerpos} \\
+	B &= b\exp(\gamma_1T_1) \label{eq:B_tres_cuerpos}
+\end{align}
+
+y obtenemos
+
+\begin{align}
+	(1 - 4\sigma + \sigma^2)\gamma_1a + [(1 - \sigma^2)b_1 + \frac{1}{2}(b_0 - \sigma^2a_0)]b &= 0 \label{eq:ecuacion_a_tres_cuerpos} \\
+	-[(1 - \sigma^2)b_1 - \frac{1}{2}(b_0 - \sigma^2a_0)]a + (1 - 4\sigma + \sigma^2)\gamma_1b &= 0 \label{eq:ecuacion_b_tres_cuerpos}
+\end{align}
+
+Estas ecuaciones son las mismas que (3.1.105) y (3.1.106) obtenidas usando el método de Whittaker. Por lo tanto, $\gamma_1$ y $b/a$ están dados por (3.1.107) y (3.1.108), mientras que $x$ e $y$ están dados por (3.1.109). Esta expansión fue continuada a segundo orden por Alfriend y Rand (1969).
+
+\subsection{Un Resorte Oscilante}
+
+Consideremos a continuación el resorte oscilante no lineal discutido en las Secciones 5.5.3 y 5.7.5 y descrito por el Lagrangiano (5.5.54). Las ecuaciones de movimiento correspondientes a (5.5.54) son
+
+\begin{align}
+	\ddot{x} + \frac{k}{m}x + g(1 - \cos\theta) - (1 + x)\dot{\theta}^2 &= 0 \label{eq:resorte_oscilante_1} \\
+	\ddot{\theta} + \frac{2\dot{x}\dot{\theta}}{1 + x} + \frac{g}{l}\sin\theta &= 0 \label{eq:resorte_oscilante_2}
+\end{align}
+
+Buscamos una solución asintótica de estas ecuaciones para $x$ y $\theta$ pequeños pero finitos de la forma
+
+\begin{align}
+	x(t) &= \epsilon x_1(T_0,T_1) + \epsilon^2x_2(T_0,T_1) + \cdots \label{eq:expansion_x_resorte_oscilante} \\
+	\theta(t) &= \epsilon\theta_1(T_0,T_1) + \epsilon^2\theta_2(T_0,T_1) + \cdots \label{eq:expansion_theta_resorte_oscilante}
+\end{align}
+
+donde $T_0 = t$ y $T_1 = \epsilon t$, y $\epsilon$ es del orden de las amplitudes de oscilación.
+
+Sustituyendo \eqref{eq:expansion_x_resorte_oscilante} y \eqref{eq:expansion_theta_resorte_oscilante} en \eqref{eq:resorte_oscilante_1} y \eqref{eq:resorte_oscilante_2} e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+Orden $\epsilon$
+
+\begin{align}
+	D_0^2x_1 + \omega_1^2x_1 &= 0, \quad \omega_1^2 = \frac{k}{m} \label{eq:x1_resorte_oscilante} \\
+	D_0^2\theta_1 + \omega_2^2\theta_1 &= 0, \quad \omega_2^2 = \frac{g}{l} \label{eq:theta1_resorte_oscilante}
+\end{align}
+
+Orden $\epsilon^2$
+
+\begin{align}
+	D_0^2x_2 + \omega_1^2x_2 &= -2D_0D_1x_1 - \frac{1}{2}g\theta_1^2 + \frac{1}{2}(D_0\theta_1)^2 \label{eq:x2_resorte_oscilante} \\
+	D_0^2\theta_2 + \omega_2^2\theta_2 &= -2D_0D_1\theta_1 + 2x_1\theta_1 - \frac{\omega_2^2}{6}(D_0\theta_1)(D_1\theta_1) \label{eq:theta2_resorte_oscilante}
+\end{align}
+
+La solución de las ecuaciones de primer orden es
+
+\begin{align}
+	x_1 &= A(T_1)e^{i\omega_1T_0} + \bar{A}(T_1)e^{-i\omega_1T_0} \label{eq:solucion_x1_resorte_oscilante} \\
+	\theta_1 &= B(T_1)e^{i\omega_2T_0} + \bar{B}(T_1)e^{-i\omega_2T_0} \label{eq:solucion_theta1_resorte_oscilante}
+\end{align}
+
+Entonces \eqref{eq:x2_resorte_oscilante} y \eqref{eq:theta2_resorte_oscilante} se convierten en
+
+\begin{align}
+	D_0^2x_2 + \omega_1^2x_2 &= -2i\omega_1D_1Ae^{i\omega_1T_0} - \frac{1}{2}gB^2e^{2i\omega_2T_0} + \frac{1}{2}gBB + CC \label{eq:x2_resorte_oscilante_expandida} \\
+	D_0^2\theta_2 + \omega_2^2\theta_2 &= -2i\omega_2D_1Be^{i\omega_2T_0} + 2ABe^{i(\omega_1+\omega_2)T_0} + 2\bar{A}Be^{i(-\omega_1+\omega_2)T_0} \nonumber \\
+	&\quad - \frac{\omega_2^3}{3}B\bar{B}Be^{i\omega_2T_0} + CC \label{eq:theta2_resorte_oscilante_expandida}
+\end{align}
+
+Si $A$ y $B$ son constantes, las soluciones particulares de \eqref{eq:x2_resorte_oscilante_expandida} y \eqref{eq:theta2_resorte_oscilante_expandida} son
+
+\begin{align}
+	x_2 &= -\frac{gB^2}{2(\omega_1^2-4\omega_2^2)}e^{2i\omega_2T_0} + CC \label{eq:solucion_x2_resorte_oscilante} \\
+	\theta_2 &= -\frac{\omega_2^2(\omega_2^2+2\omega_1^2)}{\omega_1^2(\omega_1^2-\omega_2^2)}ABe^{i(\omega_1+\omega_2)T_0} \nonumber \\
+	&\quad -\frac{\omega_2^2(\omega_2^2-2\omega_1^2)}{\omega_1^2(\omega_1^2-\omega_2^2)}\bar{A}Be^{i(-\omega_1+\omega_2)T_0} + CC \label{eq:solucion_theta2_resorte_oscilante}
+\end{align}
+
+que tienden a $\infty$ cuando $\omega_1 \to 2\omega_2$. En consecuencia, las expansiones \eqref{eq:expansion_x_resorte_oscilante} y \eqref{eq:expansion_theta_resorte_oscilante} fallan cuando $\omega_1 \approx 2\omega_2$.
+
+Para obtener una expansión válida cuando $\omega_1 \approx 2\omega_2$, hacemos
+
+\begin{equation}
+	\omega_1 - 2\omega_2 = \epsilon\sigma, \quad \sigma = O(1)
+	\label{eq:condicion_resonancia_resorte_oscilante}
+\end{equation}
+
+y dejamos que $A$ y $B$ sean funciones de $T_1$ en lugar de constantes. Además, usando \eqref{eq:condicion_resonancia_resorte_oscilante} expresamos $\exp(2i\omega_2T_0)$ y $\exp[i(\omega_1-\omega_2)T_0]$ en \eqref{eq:x2_resorte_oscilante_expandida} y \eqref{eq:theta2_resorte_oscilante_expandida} como
+
+\begin{align}
+	\exp(2i\omega_2T_0) &= \exp(i\omega_1T_0 - i\sigma T_1) \label{eq:exp_2omega2} \\
+	\exp[i(\omega_1-\omega_2)T_0] &= \exp(i\omega_2T_0 + i\sigma T_1) \label{eq:exp_omega1_menos_omega2}
+\end{align}
+
+para obtener
+
+\begin{align}
+	D_0^2x_2 + \omega_1^2x_2 &= -(2i\omega_1D_1A + \frac{1}{2}gB^2e^{i\sigma T_1})e^{i\omega_1T_0} + CC + NST \label{eq:x2_resorte_oscilante_final} \\
+	D_0^2\theta_2 + \omega_2^2\theta_2 &= -2i\omega_2D_1B - \frac{\omega_2^2(\omega_2^2-2\omega_1^2)}{\omega_1^2(\omega_1^2-\omega_2^2)}\bar{A}Be^{i\sigma T_1}e^{i\omega_2T_0} + CC + NST \label{eq:theta2_resorte_oscilante_final}
+\end{align}
+
+Eliminando términos seculares, tenemos
+
+\begin{align}
+	2i\omega_1D_1A &= -\frac{1}{2}gB^2\exp(-i\sigma T_1) \label{eq:condicion_A_resorte_oscilante} \\
+	2i\omega_2D_1B &= \frac{\omega_2^2(\omega_2^2-2\omega_1^2)}{\omega_1^2(\omega_1^2-\omega_2^2)}\bar{A}B\exp(i\sigma T_1) \label{eq:condicion_B_resorte_oscilante}
+\end{align}
+
+Haciendo $A = -\frac{1}{2}ia_1\exp(i\omega_1\beta_1)$ y $B = -\frac{1}{2}ia_2\exp(i\omega_2\beta_2)$, con $a_1$ y $a_2$ reales, y separando partes reales e imaginarias, obtenemos
+
+\begin{align}
+	\frac{da_1}{dT_1} &= -\frac{3g\omega_2}{4\omega_1}a_1a_2\cos\gamma \label{eq:ecuacion_a1_resorte_oscilante} \\
+	\frac{da_2}{dT_1} &= \frac{3\omega_2^3}{4\omega_1^3}a_1a_2\cos\gamma \label{eq:ecuacion_a2_resorte_oscilante} \\
+	a_1\frac{d\beta_1}{dT_1} &= -\frac{3g}{4\omega_1}a_2^2\sin\gamma \label{eq:ecuacion_beta1_resorte_oscilante} \\
+	a_2\frac{d\beta_2}{dT_1} &= \frac{3\omega_2^2}{4\omega_1^3}a_1^2\sin\gamma \label{eq:ecuacion_beta2_resorte_oscilante}
+\end{align}
+
+donde
+
+\begin{equation}
+	\gamma = \omega_1\beta_1 - 2\omega_2\beta_2 + (\omega_1 - 2\omega_2)t
+	\label{eq:gamma_resorte_oscilante}
+\end{equation}
+
+Si hacemos $a_1^2 = c\omega_1a_1^*/\omega_2k$ y $a_2^2 = 2a_2/mgl$, \eqref{eq:ecuacion_a1_resorte_oscilante} a \eqref{eq:gamma_resorte_oscilante} se convierten en (5.5.76) a (5.5.80) que fueron obtenidas usando el método de promediación en conjunto con variables canónicas.
+
+\subsection{Un Modelo para Inestabilidad No Lineal Débil}
+
+A continuación, consideramos el problema modelo
+
+\begin{align}
+	u_{tt} - u_{xx} - u &= u^3 \label{eq:inestabilidad_no_lineal_1} \\
+	u(x,0) &= \epsilon\cos kx, \quad u_t(x,0) = 0 \label{eq:inestabilidad_no_lineal_2}
+\end{align}
+
+para inestabilidad no lineal débil de ondas estacionarias, que fue discutido en las Secciones 2.1.2, 3.4.2, y 3.5.1. Lejos de $k = 1$, una solución uniformemente válida para ondas estacionarias es (Sección 3.4.2)
+
+\begin{equation}
+	u = \epsilon\cos\omega t\cos kx + O(\epsilon^3)
+	\label{eq:solucion_inestabilidad_no_lineal}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\omega^2 = k^2 - 1 + \frac{9\epsilon^2}{32(k^2-1)} + \cdots
+	\label{eq:omega_inestabilidad_no_lineal}
+\end{equation}
+
+Es claro que esta expansión falla cuando $k - 1 = O(\epsilon^2)$.
+
+Para determinar una expansión válida cerca de $k = 1$, introducimos la nueva variable $\xi = kx$ en \eqref{eq:inestabilidad_no_lineal_1} para obtener
+
+\begin{align}
+	u_{tt} - k^2u_{\xi\xi} - u &= u^3 \label{eq:inestabilidad_no_lineal_3} \\
+	u(\xi,0) &= \epsilon\cos\xi, \quad u_t(t,0) = 0 \label{eq:inestabilidad_no_lineal_4}
+\end{align}
+
+Además, hacemos
+
+\begin{equation}
+	k = 1 + \epsilon^2k_2 \quad \text{con} \quad k_2 = O(1)
+	\label{eq:k_inestabilidad_no_lineal}
+\end{equation}
+
+y asumimos que
+
+\begin{equation}
+	u(\xi,t;\epsilon) = u(\xi,T_0,T_1,T_2;\epsilon) = \epsilon u_1 + \epsilon^2u_2 + \epsilon^3u_3 + \cdots
+	\label{eq:expansion_u_inestabilidad_no_lineal}
+\end{equation}
+
+donde $T_n = \epsilon^n t$.
+
+Sustituyendo \eqref{eq:k_inestabilidad_no_lineal} y \eqref{eq:expansion_u_inestabilidad_no_lineal} en \eqref{eq:inestabilidad_no_lineal_3} e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+Orden $\epsilon$
+
+\begin{align}
+	\frac{\partial^2u_1}{\partial T_0^2} - \frac{\partial^2u_1}{\partial\xi^2} - u_1 &= 0 \label{eq:u1_inestabilidad_no_lineal} \\
+	u_1 &= \cos\xi, \quad \frac{\partial u_1}{\partial T_0} = 0 \quad \text{en} \quad T_0 = 0 \label{eq:condiciones_u1_inestabilidad_no_lineal}
+\end{align}
+
+Orden $\epsilon^2$
+
+\begin{align}
+	\frac{\partial^2u_2}{\partial T_0^2} - \frac{\partial^2u_2}{\partial\xi^2} - u_2 &= -2\frac{\partial^2u_1}{\partial T_0\partial T_1} \label{eq:u2_inestabilidad_no_lineal} \\
+	u_2 &= 0, \quad \frac{\partial u_1}{\partial T_1} + \frac{\partial u_2}{\partial T_0} = 0 \quad \text{en} \quad T_0 = 0 \label{eq:condiciones_u2_inestabilidad_no_lineal}
+\end{align}
+
+Orden $\epsilon^3$
+
+\begin{align}
+	\frac{\partial^2u_3}{\partial T_0^2} - \frac{\partial^2u_3}{\partial\xi^2} - u_3 &= u_1^3 + 2k_2\frac{\partial^2u_1}{\partial\xi^2} - 2\frac{\partial^2u_1}{\partial T_0\partial T_2} - 2\frac{\partial^2u_2}{\partial T_0\partial T_1} - \frac{\partial^2u_1}{\partial T_1^2} \label{eq:u3_inestabilidad_no_lineal} \\
+	u_3 &= 0, \quad \frac{\partial u_2}{\partial T_1} + \frac{\partial u_3}{\partial T_0} + \frac{\partial u_1}{\partial T_2} = 0 \quad \text{en} \quad T_0 = 0 \label{eq:condiciones_u3_inestabilidad_no_lineal}
+\end{align}
+
+La solución del problema de primer orden es
+
+\begin{equation}
+	u_1 = a(T_1,T_2)\cos\xi, \quad a(0,0) = 1
+	\label{eq:solucion_u1_inestabilidad_no_lineal}
+\end{equation}
+
+Entonces \eqref{eq:u2_inestabilidad_no_lineal} se convierte en
+
+\begin{equation}
+	\frac{\partial^2u_2}{\partial T_0^2} - \frac{\partial^2u_2}{\partial\xi^2} - u_2 = 2\frac{\partial a}{\partial T_1}\sin\xi\sin T_0
+	\label{eq:u2_inestabilidad_no_lineal_expandida}
+\end{equation}
+
+La solución de \eqref{eq:u2_inestabilidad_no_lineal_expandida} contendrá un término proporcional a $T_0$ haciendo $u_2/u_1$ no acotada cuando $T_0 \to \infty$ a menos que $\partial a/\partial T_1 = 0$ en $T_1 = T_2 = 0$. Entonces
+
+\begin{equation}
+	u_2 = b(T_1,T_2)\cos\xi, \quad b(0,0) = 0
+	\label{eq:solucion_u2_inestabilidad_no_lineal}
+\end{equation}
+
+Con las soluciones de primer y segundo orden conocidas, la ecuación para $u_3$ se convierte en
+
+\begin{equation}
+	\frac{\partial^2u_3}{\partial T_0^2} - \frac{\partial^2u_3}{\partial\xi^2} - u_3 = \left(\frac{3}{4}a^3 - 2k_2a - \frac{\partial^2a}{\partial T_1^2}\right)\cos\xi + \frac{1}{4}a^3\cos 3\xi
+	\label{eq:u3_inestabilidad_no_lineal_expandida}
+\end{equation}
+
+Los términos seculares se eliminarán si
+
+\begin{equation}
+	\frac{\partial^2a}{\partial T_1^2} + (2k_2 - \frac{3}{4}a^2)a = 0
+	\label{eq:ecuacion_a_inestabilidad_no_lineal}
+\end{equation}
+
+Las condiciones iniciales para $a$ se obtuvieron anteriormente como
+
+\begin{equation}
+	a = 1 \quad \text{y} \quad \frac{\partial a}{\partial T_1} = 0 \quad \text{en} \quad T_1 = 0
+	\label{eq:condiciones_iniciales_a_inestabilidad_no_lineal}
+\end{equation}
+
+Para determinar $b(T_1,T_2)$ y la dependencia de $a$ en $T_2$, necesitamos llevar a cabo la expansión a un orden superior. Si limitamos el análisis a $O(\epsilon^3)$, podemos considerar $a$ como una función de $T_1$ dentro de un error de $O(\epsilon^2t)$.
+
+Una primera integral para \eqref{eq:ecuacion_a_inestabilidad_no_lineal} y \eqref{eq:condiciones_iniciales_a_inestabilidad_no_lineal} es
+
+\begin{equation}
+	\left(\frac{\partial a}{\partial T_1}\right)^2 = (1 - a^2)(2k_2 - \frac{3}{8}a^2 - \frac{3}{8})
+	\label{eq:primera_integral_a_inestabilidad_no_lineal}
+\end{equation}
+
+Como $a(T_1)$ es real, el lado derecho de \eqref{eq:primera_integral_a_inestabilidad_no_lineal} debe ser positivo, por lo tanto $a^2$ debe estar fuera del intervalo cuyos extremos son 1 y $\beta$. Como $a(0) = 1$, $a^2$ aumenta sin límite si $\beta < 1$ y oscila entre 0 y 1 si $\beta > 1$. Por lo tanto $\beta = 1$ o $k_2 = 3/8$ separa las regiones estable e inestable. Por lo tanto, la condición de estabilidad neutral es
+
+\begin{equation}
+	k = 1 + \frac{3}{8}\epsilon^2
+	\label{eq:condicion_estabilidad_neutral_inestabilidad_no_lineal}
+\end{equation}
+
+de acuerdo con (3.5.6). La solución para $a$ es una función elíptica jacobiana.
+
+\subsection{Un Modelo para Interacción Onda-Onda}
+
+Consideramos nuevamente la ecuación modelo de Bretherton (1964)
+
+\begin{equation}
+	\phi_{tt} + \phi_{xxxx} + \phi_{xx} + \phi = \epsilon\phi^3
+	\label{eq:bretherton}
+\end{equation}
+
+que fue tratada en las Secciones 5.8.1 y 5.8.2 usando el enfoque variacional.
+
+El problema lineal admite la solución de onda viajera uniforme
+
+\begin{equation}
+	\phi = a\cos(kx - \omega t + \beta)
+	\label{eq:solucion_lineal_bretherton}
+\end{equation}
+
+donde $a$, $k$, $\omega$, y $\beta$ son constantes y $\omega$ y $k$ satisfacen la relación de dispersión
+
+\begin{equation}
+	\omega^2 = k^4 - k^2 + 1
+	\label{eq:relacion_dispersion_bretherton}
+\end{equation}
+
+La resonancia armónica puede ocurrir siempre que $(w,k)$ y $(nw,nk)$ para algún entero $n \geq 2$ satisfagan \eqref{eq:relacion_dispersion_bretherton}. Esto ocurre en todos los $k^2 = 1/n$ para $n \geq 2$. En estos números de onda, el fundamental y su $n$-ésimo armónico tienen la misma velocidad de fase.
+
+Como la no linealidad es cúbica en nuestra ecuación, el fundamental correspondiente a $k^2 = 1/3$ interactúa a $O(\epsilon)$ solo con su tercer armónico $(k^2 = 3)$. Si la no linealidad es $\epsilon\phi^m$ para algún entero $m$, entonces el fundamental $(k^2 = 1/m)$ interactúa a $O(\epsilon)$ con su $m$-ésimo armónico $(k^2 = m)$. Si consideramos interacciones a órdenes superiores a $\epsilon$, pueden ocurrir resonancias armónicas distintas de la tercera incluso para una no linealidad cúbica.
+
+Para determinar una expansión de primer orden válida cerca de $k^2 = 1/3$, hacemos
+
+\begin{equation}
+	\phi = \phi_0(T_0,T_1,X_0,X_1) + \epsilon\phi_1(T_0,T_1,X_0,X_1) + \cdots
+	\label{eq:expansion_phi_bretherton}
+\end{equation}
+
+donde
+
+\begin{equation}
+	T_n = \epsilon^n t, \quad X_n = \epsilon^n x
+	\label{eq:escalas_bretherton}
+\end{equation}
+
+Sustituyendo esta expansión en \eqref{eq:bretherton} e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+\begin{align}
+	L(\phi_0) &= \frac{\partial^2\phi_0}{\partial T_0^2} + \frac{\partial^4\phi_0}{\partial X_0^4} + \frac{\partial^2\phi_0}{\partial X_0^2} + \phi_0 = 0 \label{eq:phi0_bretherton} \\
+	L(\phi_1) &= \phi_0^3 - 2\frac{\partial^2\phi_0}{\partial T_0\partial T_1} - 4\frac{\partial^4\phi_0}{\partial X_0^3\partial X_1} - 2\frac{\partial^2\phi_0}{\partial X_0\partial X_1} \label{eq:phi1_bretherton}
+\end{align}
+
+La solución de \eqref{eq:phi0_bretherton} se toma como
+
+\begin{equation}
+	\phi_0 = A_1(T_1,X_1)e^{i\theta_1} + A_3(T_1,X_1)e^{i\theta_3} + CC
+	\label{eq:solucion_phi0_bretherton}
+\end{equation}
+
+donde
+
+\begin{align}
+	\theta_1 &= k_1X_0 - \omega_1T_0 \label{eq:theta1_bretherton} \\
+	\theta_3 &= k_3X_0 - \omega_3T_0 \label{eq:theta3_bretherton} \\
+	\omega_n^2 &= k_n^4 - k_n^2 + 1 \label{eq:omega_n_bretherton} \\
+	\omega_3 &\approx 3\omega_1, \quad k_3 \approx 3k_1 \label{eq:resonancia_bretherton}
+\end{align}
+
+Nótese que $\phi_0$ se asume que contiene los dos armónicos que interactúan. Si hubiéramos asumido que contiene $\exp(i\theta_1)$, habríamos encontrado que no es válido (ver Secciones 5.8.2 y 6.4.8).
+
+Sustituyendo $\phi_0$ en \eqref{eq:phi1_bretherton}, obtenemos
+
+\begin{equation}
+	\begin{split}
+		L(\phi_1) = &\left[2i\omega_1\frac{\partial A_1}{\partial T_1} + 4ik_1^3\frac{\partial A_1}{\partial X_1} + 2ik_1\frac{\partial A_1}{\partial X_1}\right]e^{i\theta_1} \\
+		&+ \left[2i\omega_3\frac{\partial A_3}{\partial T_1} + 4ik_3^3\frac{\partial A_3}{\partial X_1} + 2ik_3\frac{\partial A_3}{\partial X_1}\right]e^{i\theta_3} \\
+		&+ 3(2A_1\bar{A}_1 + A_3\bar{A}_3)A_1e^{i\theta_1} + 3(2A_3\bar{A}_3 + A_1\bar{A}_1)A_3e^{i\theta_3} \\
+		&+ A_1^3e^{3i\theta_1} + A_3^3e^{3i\theta_3} \\
+		&+ 3A_1^2\bar{A}_3e^{i(2\theta_1-\theta_3)} + 3\bar{A}_1^2A_3e^{i(-2\theta_1+\theta_3)} \\
+		&+ 3A_1\bar{A}_1^2e^{i(2\theta_3-\theta_1)} + 3A_3\bar{A}_3^2e^{i(2\theta_3-\theta_1)} + CC
+	\end{split}
+	\label{eq:phi1_bretherton_expandida}
+\end{equation}
+
+donde $\omega_n = d\omega_n/dk_n^2$ es la velocidad de grupo.
+
+Debido a la interacción entre los dos modos, términos que producen términos seculares distintos de los usuales $\exp(i\theta_1)$ ocurren en \eqref{eq:phi1_bretherton_expandida}. Para reconocer estos términos consideramos el caso de resonancia perfecta en el cual $\theta_3 = 3\theta_1$ de modo que $\exp(i\theta_1)$ y $\exp(3i\theta_1)$ producen términos seculares. Inmediatamente vemos que $\exp(3i\theta_1)$ y $\exp[i(\theta_3-2\theta_1)]$ producen términos seculares. Para el caso de casi resonancia, indicamos su comportamiento secular expresándolos en términos de $\exp(i\theta_1)$ y $\exp(i\theta_3)$. Para hacer esto observamos que
+
+\begin{equation}
+	\theta_3 - 3\theta_1 = \Gamma = (k_3 - 3k_1)X_0 - (\omega_3 - 3\omega_1)T_0
+	\label{eq:Gamma_bretherton}
+\end{equation}
+
+Aunque $X_0$ y $T_0$ son $O(1)$, $\Gamma$ se vuelve lentamente variable cuando $k_3 \to 3k_1$ y $\omega_3 \to 3\omega_1$, por lo tanto expresamos esta variación lenta reescribiendo $\Gamma$ como
+
+\begin{equation}
+	\Gamma = (k_3 - 3k_1)X_1 - (\omega_3 - 3\omega_1)T_1
+	\label{eq:Gamma_lenta_bretherton}
+\end{equation}
+
+Con esta función expresamos $\exp(3i\theta_1)$ y $\exp[i(\theta_3-2\theta_1)]$ como
+
+\begin{align}
+	\exp(3i\theta_1) &= \exp[i(\theta_3 - \Gamma)] \label{eq:exp_3theta1_bretherton} \\
+	\exp[i(\theta_3-2\theta_1)] &= \exp[i(\theta_1 + \Gamma)] \label{eq:exp_theta3_menos_2theta1_bretherton}
+\end{align}
+
+Eliminando los términos que producen términos seculares en el lado derecho de \eqref{eq:phi1_bretherton_expandida}, tenemos
+
+\begin{align}
+	2i\omega_1\frac{\partial A_1}{\partial T_1} + 4ik_1^3\frac{\partial A_1}{\partial X_1} + 2ik_1\frac{\partial A_1}{\partial X_1} &= -3(2A_1\bar{A}_1 + A_3\bar{A}_3)A_1 - A_3^2\bar{A}_1e^{-i\Gamma} \label{eq:condicion_A1_bretherton} \\
+	2i\omega_3\frac{\partial A_3}{\partial T_1} + 4ik_3^3\frac{\partial A_3}{\partial X_1} + 2ik_3\frac{\partial A_3}{\partial X_1} &= -3(2A_3\bar{A}_3 + A_1\bar{A}_1)A_3 - A_1^3e^{i\Gamma} \label{eq:condicion_A3_bretherton}
+\end{align}
+
+Haciendo $A_n = \frac{1}{2}a_n\exp(i\beta_n)$ con $a_n$ y $\beta_n$ reales en \eqref{eq:condicion_A1_bretherton} y \eqref{eq:condicion_A3_bretherton} y separando partes reales e imaginarias, tenemos
+
+\begin{align}
+	\frac{\partial a_1}{\partial T_1} + \omega'_1\frac{\partial a_1}{\partial X_1} &= -\frac{3}{8\omega_1}(a_1^2 + 2a_3^2 + a_1a_3\cos\delta)a_1 \label{eq:ecuacion_a1_bretherton} \\
+	\frac{\partial a_3}{\partial T_1} + \omega'_3\frac{\partial a_3}{\partial X_1} &= -\frac{1}{8\omega_3}a_1^3\sin\delta \label{eq:ecuacion_a3_bretherton} \\
+	a_1\frac{\partial\beta_1}{\partial T_1} + a_1\omega'_1\frac{\partial\beta_1}{\partial X_1} &= -\frac{1}{8\omega_1}(6a_1^2 + 3a_3^2 + a_1^3a_3\cos\delta) \label{eq:ecuacion_beta1_bretherton} \\
+	a_3\frac{\partial\beta_3}{\partial T_1} + a_3\omega'_3\frac{\partial\beta_3}{\partial X_1} &= -\frac{1}{8\omega_3}(6a_3^2 + 3a_1^2 + a_1^3a_3^{-1}\cos\delta) \label{eq:ecuacion_beta3_bretherton}
+\end{align}
+
+donde
+
+\begin{equation}
+	\delta = \Gamma + \beta_3 - 3\beta_1
+	\label{eq:delta_bretherton}
+\end{equation}
+
+Las ecuaciones \eqref{eq:ecuacion_a1_bretherton} a \eqref{eq:delta_bretherton} están en pleno acuerdo con (5.8.24) a (5.8.27) obtenidas usando el enfoque variacional.
+
+\subsection{Limitaciones del Método de Expansión de Derivadas}
+
+Este método se aplica solo a problemas de tipo ondulatorio. No se aplica a casos inestables excepto cuando la inestabilidad es débil, como el problema de estabilidad no lineal discutido en la Sección 6.2.8. Para $k > 1$, $u$ está acotada y la expansión \eqref{eq:solucion_inestabilidad_no_lineal} es válida para tiempos tan grandes como $\epsilon^{-2}$ si $k$ está lejos de 1. Esta expansión es válida solo para tiempos pequeños para $k < 1$ y lejos de 1. Cerca de $k = 1$, la inestabilidad es débil y una solución válida está dada por \eqref{eq:primera_integral_a_inestabilidad_no_lineal} para tiempos tan grandes como $\epsilon^{-1}$.
+
+En el caso de ecuaciones hiperbólicas, este método se aplica a ondas dispersivas solo cuando las condiciones iniciales pueden ser representadas por la superposición de un número finito de funciones sinusoidales. Para un problema de ondas linealmente no dispersivas como
+
+\begin{align}
+	u_{tt} - u_{xx} &= 0 \label{eq:onda_no_dispersiva} \\
+	u(x,0) &= f(x), \quad u_t(x,0) = 0 \label{eq:condiciones_iniciales_onda_no_dispersiva}
+\end{align}
+
+este método no proporciona una solución incluso si $f(x)$ es una función sinusoidal como $\cos x$. Para ver esto, hacemos
+
+\begin{equation}
+	u = u_0(x,T_0,T_1) + \epsilon u_1(x,T_0,T_1) + \cdots
+	\label{eq:expansion_u_onda_no_dispersiva}
+\end{equation}
+
+donde
+
+\begin{equation}
+	T_0 = t, \quad T_1 = \epsilon t
+	\label{eq:escalas_tiempo_onda_no_dispersiva}
+\end{equation}
+
+Sustituyendo \eqref{eq:expansion_u_onda_no_dispersiva} en \eqref{eq:onda_no_dispersiva} y \eqref{eq:condiciones_iniciales_onda_no_dispersiva} e igualando potencias iguales de $\epsilon$, obtenemos
+
+Orden $\epsilon^0$
+
+\begin{align}
+	\frac{\partial^2u_0}{\partial T_0^2} - \frac{\partial^2u_0}{\partial x^2} &= 0 \label{eq:u0_onda_no_dispersiva} \\
+	u_0(x,0,0) &= \cos x, \quad \frac{\partial u_0}{\partial T_0}(x,0,0) = 0 \label{eq:condiciones_iniciales_u0_onda_no_dispersiva}
+\end{align}
+
+Orden $\epsilon$
+
+\begin{align}
+	\frac{\partial^2u_1}{\partial T_0^2} - \frac{\partial^2u_1}{\partial x^2} &= 2\frac{\partial^2u_0}{\partial T_0\partial T_1} \label{eq:u1_onda_no_dispersiva} \\
+	u_1(x,0,0) &= 0, \quad \frac{\partial u_1}{\partial T_0}(x,0,0) = -\frac{\partial u_0}{\partial T_1}(x,0,0) \label{eq:condiciones_iniciales_u1_onda_no_dispersiva}
+\end{align}
+
+La solución de \eqref{eq:u0_onda_no_dispersiva} y \eqref{eq:condiciones_iniciales_u0_onda_no_dispersiva} es
+
+\begin{equation}
+	u_0 = A(T_1)e^{i(x-T_0)} + \bar{A}(T_1)e^{-i(x-T_0)}
+	\label{eq:solucion_u0_onda_no_dispersiva}
+\end{equation}
+
+donde
+
+\begin{equation}
+	A(0) = \frac{1}{2}
+	\label{eq:condicion_inicial_A_onda_no_dispersiva}
+\end{equation}
+
+Sustituyendo esta solución de orden cero en \eqref{eq:u1_onda_no_dispersiva} da
+
+\begin{equation}
+	\frac{\partial^2u_1}{\partial T_0^2} - \frac{\partial^2u_1}{\partial x^2} = 2i\left(A' - \bar{A}'\right)e^{i(x-T_0)} + 2\left(A\bar{A}' + \bar{A}A'\right)e^{2i(x-T_0)} + \bar{A}^2e^{-2i(x-T_0)}
+	\label{eq:u1_onda_no_dispersiva_expandida}
+\end{equation}
+
+El lado derecho de esta ecuación contiene términos que producen términos seculares. Son los términos proporcionales a $\exp[\pm 2i(x-T_0)]$ además de $\exp[\pm i(x-T_0)]$. Para que $u_1/u_0$ sea acotada para todo $T_0$, todos estos términos deben ser eliminados. Sin embargo, no hay forma de hacer esto. En los ejemplos anteriores, tales términos eran proporcionales a $\exp[\pm i(x-T_0)]$, por lo tanto $A$ fue elegido para eliminarlos. En este caso, si se desea una solución no trivial, $A$ puede ser elegido de tal manera que elimine los términos proporcionales a $\exp[\pm i(x-T_0)]$. La expansión resultante contiene términos seculares, por lo tanto no es válida para tiempos grandes.
+
+Expansiones válidas para tiempos grandes y condiciones iniciales generales para ondas no dispersivas se obtuvieron en las Secciones 3.2.4 y 3.2.5 usando el método de coordenadas deformadas.
+
+\section{El Procedimiento de Expansión de Dos Variables}
+
+\subsection{La Ecuación de Duffing}
+
+Consideremos nuevamente la ecuación
+
+\begin{equation}
+	\frac{d^2u}{dt^2} + \omega_0^2u + \epsilon u^3 = 0
+	\label{eq:duffing_dos_variables}
+\end{equation}
+
+Asumimos que
+
+\begin{equation}
+	u = u_0(\xi,\eta) + \epsilon u_1(\xi,\eta) + \epsilon^2u_2(\xi,\eta) + \cdots
+	\label{eq:expansion_u_duffing_dos_variables}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\xi = \epsilon t, \quad \eta = (1 + \epsilon^2\omega_2 + \epsilon^3\omega_4 + \cdots)t
+	\label{eq:escalas_duffing_dos_variables}
+\end{equation}
+
+Sustituyendo \eqref{eq:expansion_u_duffing_dos_variables} y \eqref{eq:escalas_duffing_dos_variables} en \eqref{eq:duffing_dos_variables} e igualando potencias iguales de $\epsilon$, obtenemos
+
+\begin{align}
+	\frac{\partial^2u_0}{\partial\eta^2} + \omega_0^2u_0 &= 0 \label{eq:u0_duffing_dos_variables} \\
+	\frac{\partial^2u_1}{\partial\eta^2} + \omega_0^2u_1 &= -2\frac{\partial^2u_0}{\partial\xi\partial\eta} - u_0^3 \label{eq:u1_duffing_dos_variables} \\
+	\frac{\partial^2u_2}{\partial\eta^2} + \omega_0^2u_2 &= -2\frac{\partial^2u_1}{\partial\xi\partial\eta} - 2\omega_2\frac{\partial^2u_0}{\partial\eta^2} - 3u_0^2u_1 \label{eq:u2_duffing_dos_variables}
+\end{align}
+
+La solución general de \eqref{eq:u0_duffing_dos_variables} es
+
+\begin{equation}
+	u_0 = A_0(\xi)\cos\omega_0\eta + B_0(\xi)\sin\omega_0\eta
+	\label{eq:solucion_u0_duffing_dos_variables}
+\end{equation}
+
+Entonces \eqref{eq:u1_duffing_dos_variables} se convierte en
+
+\begin{equation}
+	\begin{split}
+		\frac{\partial^2u_1}{\partial\eta^2} + \omega_0^2u_1 = &-[2\omega_0B_0' + \frac{3}{4}(A_0^2 + A_0B_0^2)]\cos\omega_0\eta \\
+		&+ [2\omega_0A_0' - \frac{3}{4}(B_0^2 + A_0^2B_0)]\sin\omega_0\eta \\
+		&- \frac{1}{4}(A_0^3 - 3A_0B_0^2)\cos 3\omega_0\eta + \frac{1}{4}(B_0^3 - 3A_0^2B_0)\sin 3\omega_0\eta
+	\end{split}
+	\label{eq:u1_duffing_dos_variables_expandida}
+\end{equation}
+
+Los términos seculares se eliminarán si
+
+\begin{align}
+	2\omega_0B_0' + \frac{3}{4}(A_0^2 + A_0B_0^2) &= 0 \label{eq:condicion_B0_duffing_dos_variables} \\
+	2\omega_0A_0' - \frac{3}{4}(B_0^2 + A_0^2B_0) &= 0 \label{eq:condicion_A0_duffing_dos_variables}
+\end{align}
+
+Sumando $B_0$ veces \eqref{eq:condicion_B0_duffing_dos_variables} a $A_0$ veces \eqref{eq:condicion_A0_duffing_dos_variables} da
+
+\begin{equation}
+	\frac{d}{d\xi}(A_0^2 + B_0^2) = 0 \quad \text{o} \quad A_0^2 + B_0^2 = a^2 = \text{una constante}
+	\label{eq:conservacion_amplitud_duffing_dos_variables}
+\end{equation}
+
+Usando \eqref{eq:conservacion_amplitud_duffing_dos_variables}, podemos expresar \eqref{eq:condicion_B0_duffing_dos_variables} y \eqref{eq:condicion_A0_duffing_dos_variables} en la forma
+
+\begin{equation}
+	B_0' + \omega_1A_0 = 0, \quad A_0' - \omega_1B_0 = 0
+	\label{eq:ecuaciones_A0B0_duffing_dos_variables}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\omega_1 = \frac{3}{8\omega_0}a^2
+	\label{eq:omega1_duffing_dos_variables}
+\end{equation}
+
+Por lo tanto
+
+\begin{equation}
+	A_0 = a\cos(\omega_1\xi + \phi), \quad B_0 = -a\sin(\omega_1\xi + \phi)
+	\label{eq:solucion_A0B0_duffing_dos_variables}
+\end{equation}
+
+donde $\phi$ es una constante. Con los términos seculares eliminados, la solución de $u_1$ se convierte en
+
+\begin{equation}
+	u_1 = -\frac{1}{32\omega_0^2}[A_0^3 - 3A_0B_0^2]\cos 3\omega_0\eta - \frac{1}{32\omega_0^2}[B_0^3 - 3A_0^2B_0]\sin 3\omega_0\eta
+	\label{eq:solucion_u1_duffing_dos_variables}
+\end{equation}
+
+Sustituyendo $A_0$ y $B_0$ en $u_0$ y $u_1$, obtenemos
+
+\begin{align}
+	u_0 &= a\cos\theta \label{eq:u0_final_duffing_dos_variables} \\
+	u_1 &= A_1(\xi)\cos\theta + B_1(\xi)\sin\theta + \frac{a^3}{32\omega_0^2}\cos 3\theta \label{eq:u1_final_duffing_dos_variables}
+\end{align}
+
+donde
+
+\begin{equation}
+	\theta = \omega_0\eta + \omega_1\xi + \phi
+	\label{eq:theta_duffing_dos_variables}
+\end{equation}
+
+Reemplazando $u_0$ y $u_1$ en \eqref{eq:u2_duffing_dos_variables} por sus expresiones de \eqref{eq:u0_final_duffing_dos_variables} a \eqref{eq:theta_duffing_dos_variables}, obtenemos
+
+\begin{equation}
+	\begin{split}
+		\frac{\partial^2u_2}{\partial\eta^2} + \omega_0^2u_2 = &\left(-2\omega_0B_1' + \frac{3}{4}a^2A_1 - 2\omega_0\omega_1A_1 - a\omega_1^2 - 2a\omega_0^2\omega_2 + \frac{3}{128\omega_0^2}a^5\right)\cos\theta \\
+		&- \left(2\omega_0A_1' + 2\omega_0\omega_1B_1 + \frac{3}{4}a^2B_1\right)\sin\theta + NST
+	\end{split}
+	\label{eq:u2_duffing_dos_variables_expandida}
+\end{equation}
+
+Los términos seculares se eliminan si $A_1 = B_1 = 0$ y
+
+\begin{equation}
+	\omega_2 = -\frac{1}{16\omega_0^3}a^4
+	\label{eq:omega2_duffing_dos_variables}
+\end{equation}
+
+Por lo tanto, a segunda aproximación
+
+\begin{equation}
+	u = a\cos(\omega t + \phi) + \frac{\epsilon a^3}{32\omega_0^2}\cos 3(\omega t + \phi) + O(\epsilon^2)
+	\label{eq:solucion_final_duffing_dos_variables}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\omega = \frac{d}{dt}(\omega_0\eta + \epsilon\omega_1\xi) = \frac{d}{dt}[(\omega_0 + \epsilon^2\omega_2 + \cdots)t]
+	\label{eq:omega_final_duffing_dos_variables}
+\end{equation}
+
+o
+
+\begin{equation}
+	\omega = \omega_0 + \frac{3\epsilon a^2}{\omega = \omega_0 + \frac{3\epsilon a^2}{8\omega_0} - \frac{15\epsilon^2 a^4}{256\omega_0^3} + O(\epsilon^3)
+		\label{eq:omega_final_duffing_dos_variables_2}
+	\end{equation}
+	
+	Esta expansión está en pleno acuerdo con las obtenidas en la Sección 3.1.1 usando los métodos de Lindstedt-Poincaré, en la Sección 5.4.1 usando métodos de promediación, y en la Sección 6.2.1 usando el método de expansión de derivadas.
+	
+	\subsection{El Oscilador de Van der Pol}
+	
+	El segundo ejemplo que consideramos es el oscilador de van der Pol
+	
+	\begin{equation}
+		\frac{d^2u}{dt^2} + u = \epsilon(1 - u^2)\frac{du}{dt}
+		\label{eq:van_der_pol_dos_variables}
+	\end{equation}
+	
+	discutido en las Secciones 5.4.2, 5.7.4, y 6.2.2. Asumimos que $u$ posee la siguiente expansión uniformemente válida (Cole y Kevorkian, 1963; Kevorkian, 1966a)
+	
+	\begin{equation}
+		u = u_0(\xi,\eta) + \epsilon u_1(\xi,\eta) + \epsilon^2 u_2(\xi,\eta) + \cdots
+		\label{eq:expansion_u_van_der_pol_dos_variables}
+	\end{equation}
+	
+	donde $\xi$ y $\eta$ están definidos en \eqref{eq:escalas_duffing_dos_variables}. Sustituyendo \eqref{eq:escalas_duffing_dos_variables} y \eqref{eq:expansion_u_van_der_pol_dos_variables} en \eqref{eq:van_der_pol_dos_variables}, e igualando potencias iguales de $\epsilon$, obtenemos
+	
+	\begin{align}
+		\frac{\partial^2u_0}{\partial\eta^2} + u_0 &= 0 \label{eq:u0_van_der_pol_dos_variables} \\
+		\frac{\partial^2u_1}{\partial\eta^2} + u_1 &= -2\frac{\partial^2u_0}{\partial\xi\partial\eta} + (1 - u_0^2)\frac{\partial u_0}{\partial\eta} \label{eq:u1_van_der_pol_dos_variables} \\
+		\frac{\partial^2u_2}{\partial\eta^2} + u_2 &= -2\frac{\partial^2u_1}{\partial\xi\partial\eta} - (\frac{\partial^2}{\partial\xi^2} + 2\omega_2\frac{\partial^2}{\partial\eta^2})u_0 \nonumber \\
+		&\quad + (1 - u_0^2)(\frac{\partial u_1}{\partial\eta} + 2\omega_2\frac{\partial u_0}{\partial\eta}) - 2u_0u_1\frac{\partial u_0}{\partial\eta} \label{eq:u2_van_der_pol_dos_variables}
+	\end{align}
+	
+	La solución general de \eqref{eq:u0_van_der_pol_dos_variables} es
+	
+	\begin{equation}
+		u_0 = A_0(\xi)\cos\eta + B_0(\xi)\sin\eta
+		\label{eq:solucion_u0_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Por lo tanto \eqref{eq:u1_van_der_pol_dos_variables} se convierte en
+	
+	\begin{equation}
+		\begin{split}
+			\frac{\partial^2u_1}{\partial\eta^2} + u_1 = &[-2B_0' + (1 - \frac{1}{4}A_0^2 + \frac{1}{4}B_0^2)A_0]\cos\eta \\
+			&+ [2A_0' - (1 - \frac{1}{4}A_0^2 + \frac{1}{4}B_0^2)B_0]\sin\eta \\
+			&+ \frac{1}{4}(A_0^3 - 3A_0B_0^2)\sin 3\eta + \frac{1}{4}(B_0^3 - 3A_0^2B_0)\cos 3\eta
+		\end{split}
+		\label{eq:u1_van_der_pol_dos_variables_expandida}
+	\end{equation}
+	
+	La eliminación de términos seculares requiere satisfacer las siguientes condiciones
+	
+	\begin{align}
+		2B_0' - (1 - \frac{1}{4}A_0^2 + \frac{1}{4}B_0^2)A_0 &= 0 \label{eq:condicion_B0_van_der_pol_dos_variables} \\
+		2A_0' - (1 - \frac{1}{4}A_0^2 + \frac{1}{4}B_0^2)B_0 &= 0 \label{eq:condicion_A0_van_der_pol_dos_variables}
+	\end{align}
+	
+	Restando $B_0$ veces \eqref{eq:condicion_B0_van_der_pol_dos_variables} de $A_0$ veces \eqref{eq:condicion_A0_van_der_pol_dos_variables} da
+	
+	\begin{equation}
+		\rho' - \rho(1 - \frac{1}{4}\rho) = 0
+		\label{eq:ecuacion_rho_van_der_pol_dos_variables}
+	\end{equation}
+	
+	donde $\rho$ es el cuadrado de la amplitud de la solución de orden cero; es decir
+	
+	\begin{equation}
+		\rho = a^2 = A_0^2 + B_0^2
+		\label{eq:rho_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Por separación de variables integramos \eqref{eq:ecuacion_rho_van_der_pol_dos_variables} para obtener
+	
+	\begin{equation}
+		a^2 = \frac{4}{1 + (\frac{4}{a_0^2} - 1)e^{-\xi}}
+		\label{eq:solucion_a_van_der_pol_dos_variables}
+	\end{equation}
+	
+	donde $a_0$ es la amplitud inicial. Expresando $A_0$ y $B_0$ en términos de la fase $\phi$ y la amplitud $a$, obtenemos
+	
+	\begin{equation}
+		A_0 = a\cos\phi, \quad B_0 = -a\sin\phi
+		\label{eq:A0B0_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Sustituyendo en \eqref{eq:condicion_B0_van_der_pol_dos_variables} o \eqref{eq:condicion_A0_van_der_pol_dos_variables} y usando \eqref{eq:ecuacion_rho_van_der_pol_dos_variables}, encontramos que
+	
+	\begin{equation}
+		\phi' = 0 \quad \text{o} \quad \phi = \phi_0 = \text{una constante}
+		\label{eq:phi_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Por lo tanto $u_0$ puede expresarse como
+	
+	\begin{equation}
+		u_0 = a\cos(\eta + \phi_0)
+		\label{eq:u0_final_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Con \eqref{eq:condicion_B0_van_der_pol_dos_variables} y \eqref{eq:condicion_A0_van_der_pol_dos_variables} satisfechas, la solución de \eqref{eq:u1_van_der_pol_dos_variables_expandida} es
+	
+	\begin{equation}
+		u_1 = A_1(\xi)\cos(\eta + \phi_0) + B_1(\xi)\sin(\eta + \phi_0) - \frac{a^3}{32}\sin 3(\eta + \phi_0)
+		\label{eq:u1_final_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Sustituyendo $u_0$ y $u_1$ en \eqref{eq:u2_van_der_pol_dos_variables} da
+	
+	\begin{equation}
+		\begin{split}
+			\frac{\partial^2u_2}{\partial\eta^2} + u_2 = &[-2B_1' + (1 - \frac{1}{4}a^2)B_1 - a'' + 2\omega_2a + (1 - \frac{1}{4}a^2)a' + \frac{1}{128}a^5]\cos(\eta + \phi_0) \\
+			&+ [2A_1' - (1 - \frac{1}{4}a^2)A_1]\sin(\eta + \phi_0) + NST
+		\end{split}
+		\label{eq:u2_van_der_pol_dos_variables_expandida}
+	\end{equation}
+	
+	Para eliminar términos seculares requerimos que
+	
+	\begin{align}
+		2B_1' - (1 - \frac{1}{4}a^2)B_1 &= a'' - 2\omega_2a - (1 - \frac{1}{4}a^2)a' - \frac{1}{128}a^5 \label{eq:condicion_B1_van_der_pol_dos_variables} \\
+		2A_1' - (1 - \frac{1}{4}a^2)A_1 &= 0 \label{eq:condicion_A1_van_der_pol_dos_variables}
+	\end{align}
+	
+	Usando \eqref{eq:ecuacion_rho_van_der_pol_dos_variables} y \eqref{eq:rho_van_der_pol_dos_variables}, expresamos las dos ecuaciones anteriores como
+	
+	\begin{align}
+		B_1' - \frac{1}{2}(1 - \frac{1}{4}a^2)B_1 &= \frac{1}{2}a'' - \omega_2a - \frac{1}{2}(1 - \frac{1}{4}a^2)a' - \frac{1}{256}a^5 \label{eq:ecuacion_B1_van_der_pol_dos_variables} \\
+		A_1' - \frac{1}{2}(1 - \frac{1}{4}a^2)A_1 &= 0 \label{eq:ecuacion_A1_van_der_pol_dos_variables}
+	\end{align}
+	
+	Las soluciones de estas ecuaciones son
+	
+	\begin{align}
+		B_1 &= a(\omega_2 + \frac{1}{16}) - b_1a + \frac{1}{8}a\ln a - \frac{1}{64}a^3 \label{eq:solucion_B1_van_der_pol_dos_variables} \\
+		A_1 &= a_1a^2e^{-\xi} \label{eq:solucion_A1_van_der_pol_dos_variables}
+	\end{align}
+	
+	donde $a_1$ y $b_1$ son constantes. Como $\xi \to \infty$, $\xi \to \infty$ y $a \to 2$, $u_1/u_0$ es no acotada cuando $\xi \to \infty$ a menos que
+	
+	\begin{equation}
+		\omega_2 = -\frac{1}{16}
+		\label{eq:omega2_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Por lo tanto, a segunda aproximación
+	
+	\begin{equation}
+		\begin{split}
+			u = &(a + \epsilon a_1a^2e^{-\xi})\cos[(1 - \frac{1}{16}\epsilon^2)t + \phi_0] \\
+			&- \epsilon\left(\frac{1}{8}a^3 - \frac{1}{8}a\ln a + b_1a\right)\sin[(1 - \frac{1}{16}\epsilon^2)t + \phi_0] \\
+			&+ \frac{\epsilon a^3}{32}\sin 3[(1 - \frac{1}{16}\epsilon^2)t + \phi_0] + O(\epsilon^2)
+		\end{split}
+		\label{eq:solucion_final_van_der_pol_dos_variables}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		a^2 = \frac{4}{1 + (\frac{4}{a_0^2} - 1)e^{-\epsilon t}}
+		\label{eq:a_final_van_der_pol_dos_variables}
+	\end{equation}
+	
+	Esta expansión está en pleno acuerdo con \eqref{eq:solucion_segunda_aproximacion_vdp} obtenida usando el método de expansión de derivadas si identificamos $a_1$ con $(\frac{5}{16} + \frac{1}{3}a_1)$.
+	
+	\subsection{La Estabilidad de los Puntos Triangulares en el Problema Restringido Elíptico de Tres Cuerpos}
+	
+	Consideremos nuevamente el problema de resonancia paramétrica tratado en la Sección 6.2.6 usando el método de expansión de derivadas. El problema está descrito matemáticamente por (3.1.63) a (3.1.65). Para determinar una expansión uniformemente válida cerca de las curvas de transición usando el procedimiento de expansión de dos variables, necesitamos usar escalas de tiempo diferentes de las dadas por \eqref{eq:escalas_duffing_dos_variables}. Las escalas de tiempo apropiadas son
+	
+	\begin{equation}
+		\xi = (\epsilon + \omega_2\epsilon^2 + \cdots)t, \quad \eta = t
+		\label{eq:escalas_tres_cuerpos_dos_variables}
+	\end{equation}
+	
+	Asumimos que $x$ e $y$ poseen expansiones de la forma
+	
+	\begin{align}
+		x &= x_0(\xi,\eta) + \epsilon x_1(\xi,\eta) + \epsilon^2 x_2(\xi,\eta) + \cdots \label{eq:expansion_x_tres_cuerpos_dos_variables} \\
+		y &= y_0(\xi,\eta) + \epsilon y_1(\xi,\eta) + \epsilon^2 y_2(\xi,\eta) + \cdots \label{eq:expansion_y_tres_cuerpos_dos_variables}
+	\end{align}
+	
+	Los detalles algebraicos de la solución no se presentan aquí. Los detalles para la solución de primer orden son los mismos que en la Sección 6.2.6, con $\xi = T_1$ y $\eta = T_0$. Se refiere al lector a Alfriend y Rand (1969) para los detalles de la solución de segundo orden. Sus resultados están en pleno acuerdo con los obtenidos en la Sección 3.1.5 usando el método de Whittaker.
+	
+	\subsection{Limitaciones de esta Técnica}
+	
+	Los ejemplos anteriores demuestran que al elegir las dos variables apropiadamente, los resultados del procedimiento de expansión de dos variables concuerdan con los del método de expansión de derivadas. En algunos casos se necesitan más de dos variables para obtener expansiones uniformemente válidas, como en el caso del movimiento de un satélite alrededor del primario más pequeño en el problema restringido de tres cuerpos (Eckstein, Shi, y Kevorkian, 1966a) y el movimiento de un satélite artificial con un período conmensurable con el período rotacional de su primario (Shi y Eckstein, 1968).
+	
+	En el caso de ecuaciones hiperbólicas, esta técnica, así como el método de expansión de derivadas, se aplica solo a problemas de ondas dispersivas y no proporciona soluciones para problemas de ondas no dispersivas como el discutido en la Sección 6.2.10.
+	
+	\section{Método Generalizado}
+	
+	\subsection{Una Ecuación de Segundo Orden con Coeficientes Variables}
+	
+	Consideremos el siguiente problema especial de segundo orden (Nayfeh, 1964, 1965b)
+	
+	\begin{align}
+		\epsilon y'' + (2x + 1)y' + 2y &= 0 \label{eq:ecuacion_segundo_orden_coeficientes_variables} \\
+		y(0) &= \alpha, \quad y(1) = \beta \label{eq:condiciones_frontera_segundo_orden_coeficientes_variables}
+	\end{align}
+	
+	discutido en las Secciones 4.1.3 y 4.2.2 usando los métodos de expansiones asintóticas emparejadas y compuestas. Como se discutió en la Sección 4.1.3, la expansión directa posee una no uniformidad en $x = 0$. El tamaño de la región de no uniformidad es $x = O(\epsilon)$. Para tratar este problema usando el método de expansiones asintóticas emparejadas, se introdujo una expansión interna válida cuando $x = O(\epsilon)$ usando la variable interna $\eta = x/\epsilon$. Esta expansión interna se emparejó con la expansión externa y luego se formó una expansión compuesta para dar una expansión uniformemente válida.
+	
+	Para obtener una expansión uniformemente válida usando la versión generalizada del método de escalas múltiples, introducimos las escalas
+	
+	\begin{equation}
+		\xi = x, \quad \eta = \frac{1}{\epsilon}[g_{-1}(x) + \epsilon g_0(x) + \epsilon g_1(x) + \cdots]
+		\label{eq:escalas_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde $g_n$ se determina en el curso del análisis. Requerimos que $g_{-1}(0) = g_0(0) = 0$ de modo que $g_{-1}(x) \to x$ cuando $x \to 0$, por lo tanto $\eta$ se aproxima a la variable interna $x/\epsilon$. Entonces las derivadas con respecto a $x$ se transforman según
+	
+	\begin{align}
+		\frac{d}{dx} &= \frac{\partial}{\partial\xi} + \frac{1}{\epsilon}(g_{-1}' + \epsilon g_0' + \epsilon g_1' + \cdots)\frac{\partial}{\partial\eta} \label{eq:derivada_primera_segundo_orden_coeficientes_variables} \\
+		\frac{d^2}{dx^2} &= \frac{\partial^2}{\partial\xi^2} + \frac{2}{\epsilon}(g_{-1}' + \epsilon g_0' + \cdots)\frac{\partial^2}{\partial\xi\partial\eta} \nonumber \\
+		&\quad + \frac{1}{\epsilon^2}(g_{-1}' + \epsilon g_0' + \cdots)^2\frac{\partial^2}{\partial\eta^2} + \frac{1}{\epsilon}(g_{-1}'' + \epsilon g_0'' + \cdots)\frac{\partial}{\partial\eta} \label{eq:derivada_segunda_segundo_orden_coeficientes_variables}
+	\end{align}
+	
+	Estas variables transforman \eqref{eq:ecuacion_segundo_orden_coeficientes_variables} en
+	
+	\begin{equation}
+		\begin{split}
+			(g_{-1}' + \epsilon g_0' + \cdots)^2\frac{\partial^2y}{\partial\eta^2} &+ \epsilon(g_{-1}'' + \epsilon g_0'' + \cdots)\frac{\partial y}{\partial\eta} \\
+			&+ 2\epsilon(g_{-1}' + \epsilon g_0' + \cdots)\frac{\partial^2y}{\partial\xi\partial\eta} + \epsilon^2\frac{\partial^2y}{\partial\xi^2} \\
+			&+ (2\xi + 1)[(g_{-1}' + \epsilon g_0' + \cdots)\frac{\partial y}{\partial\eta} + \epsilon\frac{\partial y}{\partial\xi}] + 2y = 0
+		\end{split}
+		\label{eq:ecuacion_transformada_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde las primas denotan diferenciación con respecto al argumento. Nótese que expresamos las variables $x$ que aparecen en \eqref{eq:ecuacion_segundo_orden_coeficientes_variables} en términos de $\xi$; es decir, expresamos $2x + 1$ como $2\xi + 1$. Además, expresamos $g_n$ y sus derivadas en términos de $\xi$. Ahora asumimos que existe una representación asintótica uniformemente válida de la solución de \eqref{eq:ecuacion_transformada_segundo_orden_coeficientes_variables} de la forma
+	
+	\begin{equation}
+		y = y_0(\xi,\eta) + \epsilon y_1(\xi,\eta) + \epsilon^2 y_2(\xi,\eta) + \cdots
+		\label{eq:expansion_y_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		\left|\frac{y_n}{y_{n-1}}\right| < a
+		\label{eq:condicion_expansion_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	para todo $\xi = x$ y $\eta = \eta(x;\epsilon)$ donde $x$ está en el dominio de interés. Esta última condición es la expresión matemática del hecho de que la expansión \eqref{eq:expansion_y_segundo_orden_coeficientes_variables} es regular en todo el dominio de interés.
+	
+	Sustituyendo \eqref{eq:expansion_y_segundo_orden_coeficientes_variables} en \eqref{eq:ecuacion_transformada_segundo_orden_coeficientes_variables} e igualando potencias iguales de $\epsilon$, obtenemos las siguientes ecuaciones para $y_0$, $y_1$, y $y_2$
+	
+	\begin{align}
+		(g_{-1}')^2\frac{\partial^2y_0}{\partial\eta^2} + (2\xi + 1)g_{-1}'\frac{\partial y_0}{\partial\eta} + 2y_0 &= 0 \label{eq:y0_segundo_orden_coeficientes_variables} \\
+		(g_{-1}')^2\frac{\partial^2y_1}{\partial\eta^2} + (2\xi + 1)g_{-1}'\frac{\partial y_1}{\partial\eta} + 2y_1 &= -g_{-1}'g_0'\frac{\partial^2y_0}{\partial\eta^2} - g_{-1}''\frac{\partial y_0}{\partial\eta} \nonumber \\
+		&\quad - 2g_{-1}'\frac{\partial^2y_0}{\partial\xi\partial\eta} - (2\xi + 1)g_0'\frac{\partial y_0}{\partial\eta} \label{eq:y1_segundo_orden_coeficientes_variables} \\
+		(g_{-1}')^2\frac{\partial^2y_2}{\partial\eta^2} + (2\xi + 1)g_{-1}'\frac{\partial y_2}{\partial\eta} + 2y_2 &= -g_{-1}'g_0'\frac{\partial^2y_1}{\partial\eta^2} - \frac{1}{2}(g_0')^2\frac{\partial^2y_0}{\partial\eta^2} - g_{-1}''\frac{\partial y_1}{\partial\eta} \nonumber \\
+		&\quad - g_0''\frac{\partial y_0}{\partial\eta} - 2g_{-1}'\frac{\partial^2y_1}{\partial\xi\partial\eta} - 2g_0'\frac{\partial^2y_0}{\partial\xi\partial\eta} \nonumber \\
+		&\quad - \frac{\partial^2y_0}{\partial\xi^2} - (2\xi + 1)g_0'\frac{\partial y_1}{\partial\eta} - (2\xi + 1)\frac{\partial y_0}{\partial\xi} \label{eq:y2_segundo_orden_coeficientes_variables}
+	\end{align}
+	
+	Como $g_{-1}' \neq 0$ porque $g_{-1}(x) \to x$ cuando $x \to 0$, la solución de \eqref{eq:y0_segundo_orden_coeficientes_variables} es
+	
+	\begin{equation}
+		y_0 = A_0(\xi) + B_0(\xi)e^{-\gamma(\xi)\eta}
+		\label{eq:solucion_y0_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		\gamma(\xi) = \frac{2\xi + 1}{g_{-1}'}
+		\label{eq:gamma_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	Entonces \eqref{eq:y1_segundo_orden_coeficientes_variables} se convierte en
+	
+	\begin{equation}
+		\begin{split}
+			(g_{-1}')^2\frac{\partial^2y_1}{\partial\eta^2} + (2\xi + 1)g_{-1}'\frac{\partial y_1}{\partial\eta} + 2y_1 = &-[(2\xi + 1)A_0' + 2A_0] \\
+			&+ [(\gamma g_{-1}')' - (2\xi + 1)B_0' - (2 - \gamma g_0' + g_{-1}'\gamma^2)B_0 \\
+			&- B_0g_{-1}'\gamma']e^{-\gamma\eta}
+		\end{split}
+		\label{eq:y1_segundo_orden_coeficientes_variables_expandida}
+	\end{equation}
+	
+	Para que $y_1/y_0$ sea acotada para todo $\eta$, los coeficientes de $\eta$, $e^{-\gamma\eta}$, y $\eta^2e^{-\gamma\eta}$ deben desaparecer; es decir
+	
+	\begin{align}
+		(2\xi + 1)A_0' + 2A_0 &= 0 \label{eq:condicion_A0_segundo_orden_coeficientes_variables} \\
+		B_0\gamma' &= 0 \label{eq:condicion_gamma_segundo_orden_coeficientes_variables} \\
+		(\gamma g_{-1}')' - (2\xi + 1)B_0' - (2 - \gamma g_0' + g_{-1}'\gamma^2)B_0 - B_0g_{-1}'\gamma' &= 0 \label{eq:condicion_B0_segundo_orden_coeficientes_variables}
+	\end{align}
+	
+	La solución general de \eqref{eq:condicion_A0_segundo_orden_coeficientes_variables} es
+	
+	\begin{equation}
+		A_0 = \frac{a_0}{2\xi + 1}
+		\label{eq:solucion_A0_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde $a_0$ es una constante. Si $\gamma$, por lo tanto $y_0$, ha de satisfacer dos condiciones de frontera, $B_0 \neq 0$, así \eqref{eq:condicion_gamma_segundo_orden_coeficientes_variables} da
+	
+	\begin{equation}
+		\gamma' = 0
+		\label{eq:condicion_gamma_primo_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	Por lo tanto $\gamma$ es una constante, que se toma como la unidad sin pérdida de generalidad. Entonces \eqref{eq:gamma_segundo_orden_coeficientes_variables} da
+	
+	\begin{equation}
+		g_{-1} = \xi^2 + \xi
+		\label{eq:g_-1_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	ya que $g_{-1}(0) = 0$ para reflejar el hecho de que la no uniformidad está en $\xi = 0$. La ecuación \eqref{eq:condicion_B0_segundo_orden_coeficientes_variables} se convierte en
+	
+	\begin{equation}
+		B_0' - g_0'B_0 = 0
+		\label{eq:ecuacion_B0_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	cuya solución es
+	
+	\begin{equation}
+		B_0 = b_0e^{g_0(\xi)}
+		\label{eq:solucion_B0_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde $b_0$ es otra constante de integración. Por lo tanto, a primer orden
+	
+	\begin{equation}
+		y = \frac{a_0}{2\xi + 1} + b_0e^{g_0(\xi)}e^{-\eta} + O(\epsilon)
+		\label{eq:solucion_primer_orden_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	Como $g_0(\xi)$ desaparece de la expansión independientemente de su valor, podemos establecer $g_0 = 0$ sin pérdida de generalidad.
+	
+	El análisis anterior muestra que $\gamma$ en \eqref{eq:solucion_y0_segundo_orden_coeficientes_variables} debe ser una constante que se toma como la unidad sin pérdida de generalidad. Si $\gamma$ no es una constante, entonces como multiplica a $\eta$, las derivadas con respecto a $\xi$ siempre crean términos proporcionales a potencias de $\eta$ que hacen que $y_1/y_0$ no sea acotada cuando $\eta \to \infty$. Por lo tanto, siempre que surja tal situación, $\gamma$ se establece igual a la unidad desde el principio. Además, no necesitamos resolver \eqref{eq:y1_segundo_orden_coeficientes_variables_expandida} para determinar las condiciones para que $y_1/y_0$ sea acotada para todo $\eta$. Podríamos haber investigado \eqref{eq:y1_segundo_orden_coeficientes_variables_expandida} y requerido la desaparición de todos los términos que conducen a soluciones particulares que hacen que $y_1/y_0$ no sea acotada. Tales términos incluyen todos aquellos que son proporcionales a las soluciones de la ecuación homogénea. Como $e^{-\gamma\eta}$ y 1 son soluciones de la ecuación homogénea, requerimos la satisfacción de las condiciones \eqref{eq:condicion_A0_segundo_orden_coeficientes_variables} y \eqref{eq:condicion_B0_segundo_orden_coeficientes_variables}.
+	
+	Para determinar la segunda aproximación, hacemos $g_0 = 0$, $\gamma = 1$, sustituimos $y_0$, $y_1$, y $g_{-1}$ en \eqref{eq:y2_segundo_orden_coeficientes_variables}, y obtenemos
+	
+	\begin{equation}
+		\begin{split}
+			(g_{-1}')^2\frac{\partial^2y_2}{\partial\eta^2} + (2\xi + 1)g_{-1}'\frac{\partial y_2}{\partial\eta} + 2y_2 = &-[(2\xi + 1)A_1' + 2A_1 + A_0'] \\
+			&+ g_1'[B_1' - B_0g_1']e^{-\eta}
+		\end{split}
+		\label{eq:y2_segundo_orden_coeficientes_variables_expandida}
+	\end{equation}
+	
+	Para que $y_2/y_0$ sea acotada para todo $\eta$
+	
+	\begin{align}
+		(2\xi + 1)A_1' + 2A_1 + A_0' &= 0 \label{eq:condicion_A1_segundo_orden_coeficientes_variables} \\
+		B_1' - B_0g_1' &= 0 \label{eq:condicion_B1_segundo_orden_coeficientes_variables}
+	\end{align}
+	
+	Usando \eqref{eq:solucion_A0_segundo_orden_coeficientes_variables} para resolver \eqref{eq:condicion_A1_segundo_orden_coeficientes_variables}, obtenemos
+	
+	\begin{equation}
+		A_1 = \frac{a_1}{2\xi + 1} - \frac{a_0}{(2\xi + 1)^2}
+		\label{eq:solucion_A1_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde $a_1$ es una constante de integración. La condición \eqref{eq:condicion_B1_segundo_orden_coeficientes_variables} se satisface si
+	
+	\begin{equation}
+		B_1' = 0 \quad \text{y} \quad g_1' = 0
+		\label{eq:condiciones_B1_g1_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	Así
+	
+	\begin{equation}
+		B_1 = b_1 \quad \text{y} \quad g_1 = \text{una constante}
+		\label{eq:soluciones_B1_g1_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	donde $b_1$ es una constante de integración y $g_1 = 0$ ya que $g_1(0) = 0$.
+	
+	Por lo tanto, a segunda aproximación, $y$ está dada por
+	
+	\begin{equation}
+		y = \frac{a_0}{2\xi + 1} + b_0e^{-[(\xi^2+\xi)/\epsilon]} + \epsilon\left[\frac{a_1}{2\xi + 1} - \frac{a_0}{(2\xi + 1)^2} + b_1e^{-[(\xi^2+\xi)/\epsilon]}\right] + O(\epsilon^2)
+		\label{eq:solucion_segunda_orden_coeficientes_variables}
+	\end{equation}
+	
+	Imponiendo las condiciones de frontera $y(0) = \alpha$ y $y(1) = \beta$, obtenemos $a_0 = 3\beta$, $b_0 = \alpha - 3\beta$, $a_1 = -2\beta/3$, y $b_1 = -16\beta/3$. Por lo tanto, \eqref{eq:solucion_segunda_orden_coeficientes_variables} se convierte en
+	
+	\begin{equation}
+		y = \frac{3\beta}{2x + 1} + (\alpha - 3\beta)e^{-(x^2+x)/\epsilon} - \epsilon\left[\frac{2\beta}{3(2x + 1)} + \frac{3\beta}{(2x + 1)^2} + \frac{16\beta}{3}e^{-(x^2+x)/\epsilon}\right] + O(\epsilon^2)
+		\label{eq:solucion_final_segundo_orden_coeficientes_variables}
+	\end{equation}
+	
+	Si expandimos $e^{-(x^2/\epsilon)}$ para $x/\sqrt{\epsilon}$ pequeño, \eqref{eq:solucion_final_segundo_orden_coeficientes_variables} concuerda con (4.2.50) obtenida usando el método de expansiones compuestas. Así, el método de escalas múltiples da una sola expansión uniformemente válida en contraste con el método de expansiones asintóticas emparejadas que da dos expansiones que deben ser emparejadas.
+	
+	\subsection{Una Ecuación General de Segundo Orden con Coeficientes Variables}
+	
+	Como segundo ejemplo, consideramos (Cochran, 1962; Nayfeh, 1964, 1965b)
+	
+	\begin{align}
+		\epsilon y'' + a(x)y' + b(x)y &= c(x) \label{eq:ecuacion_general_segundo_orden} \\
+		y(0) &= \alpha \quad \text{y} \quad y(1) = \beta \label{eq:condiciones_frontera_general_segundo_orden}
+	\end{align}
+	
+	donde $a(x) > 0$ en $[0, 1]$. El caso en el que $a(x)$ se anula en el interior de $[0, 1]$ se llama un problema de punto de giro. Los problemas de punto de giro se discuten brevemente en la Sección 6.4.4 y en detalle en las Secciones 7.3.1 a 7.3.9. Si $c = 0$, este ejemplo será el mismo que el tratado en la Sección 4.1.3 usando el método de expansiones asintóticas emparejadas.
+	
+	Como $a(x) > 0$, la no uniformidad está en $x = 0$. En la Sección 4.1.3, introdujimos una variable interna $x/\epsilon$ para determinar una expansión válida en la región $x = O(\epsilon)$, que fue emparejada con una expansión externa. Para determinar una primera aproximación uniformemente válida usando el método de escalas múltiples, asumimos que existe una representación asintótica para $y$ de la forma
+	
+	\begin{equation}
+		y = y_0(\xi, \eta) + \epsilon y_1(\xi, \eta) + \cdots
+		\label{eq:expansion_y_general_segundo_orden}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		\xi = x, \quad \eta = \frac{1}{\epsilon}g(x) \quad \text{con} \quad g(x) \to x \quad \text{cuando} \quad x \to 0
+		\label{eq:escalas_general_segundo_orden}
+	\end{equation}
+	
+	Sustituyendo \eqref{eq:expansion_y_general_segundo_orden} y \eqref{eq:escalas_general_segundo_orden} en \eqref{eq:ecuacion_general_segundo_orden} e igualando los coeficientes de $\epsilon^0$ y $\epsilon$ a cero, obtenemos
+	
+	\begin{align}
+		(g')^2\frac{\partial^2y_0}{\partial\eta^2} + a(\xi)g'\frac{\partial y_0}{\partial\eta} + b(\xi)y_0 &= c(\xi) \label{eq:y0_general_segundo_orden} \\
+		(g')^2\frac{\partial^2y_1}{\partial\eta^2} + a(\xi)g'\frac{\partial y_1}{\partial\eta} + b(\xi)y_1 &= -2g'\frac{\partial^2y_0}{\partial\xi\partial\eta} - g''\frac{\partial y_0}{\partial\eta} - a(\xi)\frac{\partial y_0}{\partial\xi} \label{eq:y1_general_segundo_orden}
+	\end{align}
+	
+	donde hemos expresado $a(x)$, $b(x)$, $c(x)$, y $g(x)$ en términos de $\xi$.
+	
+	Como $g' \neq 0$, la solución general de \eqref{eq:y0_general_segundo_orden} es
+	
+	\begin{equation}
+		y_0 = A(\xi) + B(\xi)e^{-\gamma(\xi)\eta}
+		\label{eq:solucion_y0_general_segundo_orden}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		\gamma = \frac{a(\xi)}{g'}
+		\label{eq:gamma_general_segundo_orden}
+	\end{equation}
+	
+	Como se discutió en la sección anterior, $\gamma$ debe ser una constante; de lo contrario, las derivadas con respecto a $\xi$ producirían términos proporcionales a $\gamma'\eta$ en \eqref{eq:y1_general_segundo_orden}, haciendo que $y_1/y_0$ no sea acotada cuando $\eta \to \infty$. Para una expansión uniformemente válida, requerimos que $\gamma = 1$ sin pérdida de generalidad. Por lo tanto
+	
+	\begin{equation}
+		g = \int a(\xi)d\xi \quad \text{ya que} \quad g(x) \to x \quad \text{cuando} \quad x \to 0
+		\label{eq:g_general_segundo_orden}
+	\end{equation}
+	
+	Sustituyendo $y_0$ en \eqref{eq:y1_general_segundo_orden} da
+	
+	\begin{equation}
+		\begin{split}
+			(g')^2\frac{\partial^2y_1}{\partial\eta^2} + a(\xi)g'\frac{\partial y_1}{\partial\eta} + b(\xi)y_1 = &-[aA' + bA - c] \\
+			&+ [g'B' + (g'' - b)B]e^{-\eta}
+		\end{split}
+		\label{eq:y1_general_segundo_orden_expandida}
+	\end{equation}
+	
+	Para que $y_1/y_0$ sea acotada para todo $\eta$, requerimos que
+	
+	\begin{align}
+		aA' + bA &= c \label{eq:condicion_A_general_segundo_orden} \\
+		g'B' + (g'' - b)B &= 0 \label{eq:condicion_B_general_segundo_orden}
+	\end{align}
+	
+	Las soluciones de estas ecuaciones son
+	
+	\begin{align}
+		A &= \frac{1}{a(\xi)}\int_0^\xi c(t)e^{-\int_0^t [b(s)/a(s)]ds}dt + a_0e^{-\int_0^\xi [b(t)/a(t)]dt} \label{eq:solucion_A_general_segundo_orden} \\
+		B &= b_0e^{\int_0^\xi [b(t)/a(t)]dt} \label{eq:solucion_B_general_segundo_orden}
+	\end{align}
+	
+	donde $a_0$ y $b_0$ son constantes de integración.
+	
+	A primera aproximación, $y$ está dada por
+	
+	\begin{equation}
+		y = \frac{1}{a(x)}\int_0^x c(t)e^{-\int_0^t [b(s)/a(s)]ds}dt + a_0e^{-\int_0^x [b(t)/a(t)]dt} + b_0e^{\int_0^x [b(t)/a(t)]dt}e^{-\int_0^x a(t)dt/\epsilon} + O(\epsilon)
+		\label{eq:solucion_primera_orden_general_segundo_orden}
+	\end{equation}
+	
+	Los límites de las integrales en \eqref{eq:solucion_A_general_segundo_orden} y \eqref{eq:solucion_B_general_segundo_orden} fueron elegidos de modo que $a_0$ y $b_0$ pudieran expresarse de manera simple en términos de las condiciones de frontera \eqref{eq:condiciones_frontera_general_segundo_orden}. Así $a_0 = \beta$ y
+	
+	\begin{equation}
+		b_0 = \alpha - \beta - \frac{1}{a(0)}\int_0^1 c(t)e^{-\int_0^t [b(s)/a(s)]ds}dt
+		\label{eq:b0_general_segundo_orden}
+	\end{equation}
+	
+	La expansión \eqref{eq:solucion_primera_orden_general_segundo_orden} es una expansión compuesta que concuerda con las expansiones interna y externa obtenidas en la Sección 4.1.3 en las regiones interna y externa, respectivamente. Si especializamos \eqref{eq:solucion_primera_orden_general_segundo_orden} para el caso
+	
+	\begin{equation}
+		a(x) = 1 + 2x, \quad b(x) = 2, \quad c(x) = 0
+		\label{eq:caso_especial_general_segundo_orden}
+	\end{equation}
+	
+	discutido en la sección anterior, obtenemos
+	
+	\begin{equation}
+		y = \frac{3\beta}{2x + 1} + (\alpha - 3\beta)e^{-(x^2+x)/\epsilon} + O(\epsilon)
+		\label{eq:solucion_caso_especial_general_segundo_orden}
+	\end{equation}
+	
+	donde hemos usado $a_0 = \beta$ y \eqref{eq:b0_general_segundo_orden}. Esta expansión está en pleno acuerdo con el primer término en la expansión obtenida en la sección anterior.
+	
+	\subsection{Un Oscilador Lineal con una Fuerza Restauradora Lentamente Variable}
+	
+	Los dos casos discutidos anteriormente pueden ser tratados usando el método de escalas múltiples o el método de expansiones asintóticas emparejadas. Consideremos ahora un ejemplo que no puede ser tratado por este último método; a saber
+	
+	\begin{equation}
+		y'' + b(\epsilon x)y = 0
+		\label{eq:oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	donde $b(x) \neq 0$ y $\epsilon$ es un parámetro pequeño. Para obtener una expansión uniformemente válida para $x$ grande, asumimos que existe una representación asintótica para $y$ de la forma
+	
+	\begin{equation}
+		y = y_0(\xi, \eta) + \epsilon y_1(\xi, \eta) + \cdots
+		\label{eq:expansion_y_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		\xi = \epsilon x, \quad \eta = \frac{1}{\epsilon}g(\xi) + \cdots
+		\label{eq:escalas_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	Esta forma de $\eta$ fue elegida para que la frecuencia de oscilación $\omega = d\eta/dx = g'(\xi) = O(1)$. Sustituyendo \eqref{eq:expansion_y_oscilador_lineal_fuerza_variable} y \eqref{eq:escalas_oscilador_lineal_fuerza_variable} en \eqref{eq:oscilador_lineal_fuerza_variable} e igualando los coeficientes de $\epsilon^0$ y $\epsilon$ a cero, obtenemos
+	
+	\begin{align}
+		(g')^2\frac{\partial^2y_0}{\partial\eta^2} + b(\xi)y_0 &= 0 \label{eq:y0_oscilador_lineal_fuerza_variable} \\
+		(g')^2\frac{\partial^2y_1}{\partial\eta^2} + b(\xi)y_1 &= -2g'g''\frac{\partial y_0}{\partial\eta} - 2g'\frac{\partial^2y_0}{\partial\xi\partial\eta} \label{eq:y1_oscilador_lineal_fuerza_variable}
+	\end{align}
+	
+	La solución general de \eqref{eq:y0_oscilador_lineal_fuerza_variable} es
+	
+	\begin{equation}
+		y_0 = A(\xi)\cos\gamma\eta + B(\xi)\sin\gamma\eta
+		\label{eq:solucion_y0_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	donde
+	
+	\begin{equation}
+		\gamma^2 = \frac{b(\xi)}{(g')^2}
+		\label{eq:gamma_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	Como se argumentó en las dos secciones anteriores, hacemos $\gamma = 1$ para obtener una expansión en la que $y_1/y_0$ sea acotada para todo $\eta$. Por lo tanto
+	
+	\begin{equation}
+		g = \int\sqrt{b(\xi)}d\xi
+		\label{eq:g_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	Sustituyendo $y_0$ de \eqref{eq:solucion_y0_oscilador_lineal_fuerza_variable} en \eqref{eq:y1_oscilador_lineal_fuerza_variable}, y recordando que $\gamma = 1$, obtenemos
+	
+	\begin{equation}
+		\frac{\partial^2y_1}{\partial\eta^2} + y_1 = \frac{1}{2}(g''A + 2g'A')\cos\eta - \frac{1}{2}(g''B + 2g'B')\sin\eta
+		\label{eq:y1_oscilador_lineal_fuerza_variable_expandida}
+	\end{equation}
+	
+	Para que $y_1/y_0$ sea acotada para todo $\eta$, requerimos la desaparición de los coeficientes de $\exp(\pm i\eta)$ en el lado derecho de \eqref{eq:y1_oscilador_lineal_fuerza_variable_expandida}; es decir
+	
+	\begin{align}
+		g''A + 2g'A' &= 0 \label{eq:condicion_A_oscilador_lineal_fuerza_variable} \\
+		g''B + 2g'B' &= 0 \label{eq:condicion_B_oscilador_lineal_fuerza_variable}
+	\end{align}
+	
+	Las soluciones de estas ecuaciones son
+	
+	\begin{equation}
+		A = \frac{a_0}{\sqrt{g'}}, \quad B = \frac{b_0}{\sqrt{g'}}
+		\label{eq:soluciones_AB_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	donde $a_0$ y $b_0$ son constantes de integración.
+	
+	Si $b(\epsilon x) > 0$, $y$ está dada por
+	
+	\begin{equation}
+		y = \frac{a_0}{\sqrt{g'}}\cos\left(\frac{1}{\epsilon}\int\sqrt{b(\epsilon x)}dx\right) + \frac{b_0}{\sqrt{g'}}\sin\left(\frac{1}{\epsilon}\int\sqrt{b(\epsilon x)}dx\right)
+		\label{eq:solucion_y_positiva_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	donde $a_0$ y $b_0$ son constantes. Si $b(\epsilon x) < 0$, $y$ está dada por
+	
+	\begin{equation}
+		y = \frac{a_0}{\sqrt{|g'|}}\exp\left(\frac{1}{\epsilon}\int\sqrt{|b(\epsilon x)|}dx\right) + \frac{b_0}{\sqrt{|g'|}}\exp\left(-\frac{1}{\epsilon}\int\sqrt{|b(\epsilon x)|}dx\right)
+		\label{eq:solucion_y_negativa_oscilador_lineal_fuerza_variable}
+	\end{equation}
+	
+	Las expansiones \eqref{eq:solucion_y_positiva_oscilador_lineal_fuerza_variable} y \eqref{eq:solucion_y_negativa_oscilador_lineal_fuerza_variable} se llaman la aproximación WKB a la solución de \eqref{eq:oscilador_lineal_fuerza_variable} (ver Sección 7.1.3).
+	
+	Estas expansiones claramente no son válidas cerca de un punto donde $b(\epsilon x)$ se anula. De hecho, tienden a infinito cuando $x$ se aproxima a un cero de $b(\epsilon x)$. Los ceros de $b(\epsilon x)$ se llaman puntos de giro y se discuten en detalle en las Secciones 7.3.1 a 7.3.9. Un ejemplo de un problema de punto de giro se trata en la siguiente sección usando el método de escalas múltiples.
+	
+	Si cambiamos variables en \eqref{eq:oscilador_lineal_fuerza_variable} de $x$ a $\xi$, encontramos que
+	
+	\begin{equation}
+		\frac{d^2y}{d\xi^2} + \frac{1}{\epsilon^2}b(\xi)y = 0
+		\label{eq:oscilador_lineal_fuerza_variable_transformada}
+	\end{equation}
+	
+	que es un problema que contiene un parámetro grande $\lambda = 1/\epsilon^2$. Así, la aproximación obtenida anteriormente es aplicable a este problema también.
+	
+	\subsection{Un Ejemplo con un Punto de Giro}
+	
+	Consideremos el problema
+	
+	\begin{equation}
+		y'' + \lambda^2(1 - x)f(x)y = 0
+		\label{eq:ejemplo_punto_giro}
+	\end{equation}
+	
+	donde $\lambda$ es un número positivo grande y $f(x)$ es regular y positiva. La aproximación WKB tiende a infinito cuando $x \to 1$ como se puede ver de \eqref{eq:solucion_y_positiva_oscilador_lineal_fuerza_variable} y \eqref{eq:solucion_y_negativa_oscilador_lineal_fuerza_variable} si hacemos $b(\epsilon x) = (1 - x)f(x)$ y $\epsilon = \lambda^{-1}$. Para determinar una expansión válida en todas partes usando el método de escalas múltiples, primero determinamos el tamaño de la no uniformidad. Así, hacemos $\zeta = (1 - x)\lambda^\nu$ con $\nu > 0$ en \eqref{eq:ejemplo_punto_giro} y obtenemos
+	
+	\begin{equation}
+		\lambda^{2-2\nu}\frac{d^2y}{d\zeta^2} + f(1 - \lambda^{-\nu}\zeta)\zeta y = 0
+		\label{eq:ejemplo_punto_giro_transformada}
+	\end{equation}
+	
+	Cuando $\lambda \to \infty$, existen los siguientes límites diferentes dependiendo del valor de $\nu$
+	
+	\begin{equation}
+		\begin{cases}
+			y = 0 & \text{si } \nu < \frac{1}{2} \\
+			-\frac{d^2y}{d\zeta^2} + f(1)\zeta y = 0 & \text{si } \nu = \frac{1}{2} \\
+			\zeta y = 0 & \text{si } \nu > \frac{1}{2}
+		\end{cases}
+		\label{eq:limites_ejemplo_punto_giro}
+	\end{equation}
+	
+	El último límite es el apropiado porque su solución tiene un comportamiento exponencial para $\zeta < 0$ (es decir, $x > 1$) y un comportamiento oscilatorio para $\zeta > 0$ (es decir, $x < 1$). Así, puede usarse para conectar \eqref{eq:solucion_y_positiva_oscilador_lineal_fuerza_variable} y \eqref{eq:solucion_y_negativa_oscilador_lineal_fuerza_variable} a medida que se cruza el punto de giro.
+	
+	Por lo tanto, asumimos que existe una representación asintótica de la solución de \eqref{eq:ejemplo_punto_giro} de la forma (Cochran, 1962; Nayfeh, 1964, 1965b; Fowkes, 1968, Parte I)
+	
+	\begin{equation}
+		y = y_0(\xi, \eta) + \lambda^{-2/3}y_1(\xi, \eta) + \cdots
+		\label{eq:expansion_y_ejemplo_punto_giro}
+	\end{equation}
+	
+	donde
+	
+	\begin{align}
+		\xi &= x \label{eq:xi_ejemplo_punto_giro} \\
+		\eta &= \lambda g(\xi) + \cdots \label{eq:eta_ejemplo_punto_giro} \\
+		g(\xi) &= (1 - x)/h(\xi), \quad h(\xi) > 0 \label{eq:g_ejemplo_punto_giro}
+	\end{align}
+	
+	Las funciones de la variable independiente $x$ que aparecen en \eqref{eq:ejemplo_punto_giro} se expresan en términos de $\xi$, excepto $1 - x$ se reemplaza por $\lambda^{-2/3}/h(x)$ porque refleja la no uniformidad. Por lo tanto, \eqref{eq:ejemplo_punto_giro} se convierte en
+	
+	\begin{equation}
+		\lambda^2(h')^2\frac{\partial^2y}{\partial\eta^2} + \lambda^{4/3}f(\xi)y = 0
+		\label{eq:ejemplo_punto_giro_transformada_2}
+	\end{equation}
+	
+	Sustituyendo \eqref{eq:expansion_y_ejemplo_punto_giro} en \eqref{eq:ejemplo_punto_giro_transformada_2} e igualando los coeficientes de $\lambda^{4/3}$ y $\lambda^{2/3}$ a cero, obtenemos
+	
+	\begin{align}
+		(h')^2\frac{\partial^2y_0}{\partial\eta^2} + f(\xi)y_0 &= 0 \label{eq:y0_ejemplo_punto_giro} \\
+		(h')^2\frac{\partial^2y_1}{\partial\eta^2} + f(\xi)y_1 &= -2h'h''\frac{\partial y_0}{\partial\eta} - 2h'\frac{\partial^2y_0}{\partial\xi\partial\eta} \label{eq:y1_ejemplo_punto_giro}
+	\end{align}
+	
+	La solución general de \eqref{eq:y0_ejemplo_punto_giro} es
+	
+	\begin{equation}
+		y_0 = A(\xi)\eta^{1/2}J_{1/3}[y(\xi)\eta^{3/2}] + B(\xi)\eta^{1/2}J_{-1/3}[y(\xi)\eta^{3/2}]
+		\label{eq:solucion_y0_ejemplo_punto_giro}
+	\end{equation}
+	
+	donde $J_{\pm 1/3}$ son funciones de Bessel de orden $\pm 1/3$ y
+	
+	\begin{equation}
+		y^2 = \frac{4f(\xi)}{9(h')^2}
+		\label{eq:y_ejemplo_punto_giro}
+	\end{equation}
+	
+	Para que $y_1/y_0$ sea acotada para todo $\eta$, $y = 1$ como se discutió en las Secciones 6.4.1 y 6.4.2. Por lo tanto
+	
+	\begin{equation}
+		g'(\xi)h(\xi) = -\frac{2}{3}\sqrt{f(\xi)}
+		\label{eq:condicion_g_ejemplo_punto_giro}
+	\end{equation}
+	
+	donde se tomó el signo negativo en \eqref{eq:y_ejemplo_punto_giro} para que $h(\xi) > 0$. Multiplicando ambos lados de \eqref{eq:condicion_g_ejemplo_punto_giro} por $(1 - \xi)^{1/2}$, obtenemos
+	
+	\begin{equation}
+		g'^{1/2}g' = -\frac{2}{3}[(1 - \xi)f(\xi)]^{1/2}
+		\label{eq:ecuacion_g_ejemplo_punto_giro}
+	\end{equation}
+	
+	Como $g(1) = 0$
+	
+	\begin{equation}
+		g^{3/2} = -\int_\xi^1[(1 - t)f(t)]^{1/2}dt
+		\label{eq:solucion_g_ejemplo_punto_giro}
+	\end{equation}
+	
+	Con $y_0$ conocida y $y = 1$, \eqref{eq:y1_ejemplo_punto_giro} se convierte en
+	
+	\begin{equation}
+		\frac{\partial^2y_1}{\partial\eta^2} + y_1 = -\frac{\partial}{\partial\eta}[(2g'A' + g''A)\eta^{1/2}J_{1/3}(\eta^{3/2}) + (2g'B' + g''B)\eta^{1/2}J_{-1/3}(\eta^{3/2})]
+		\label{eq:y1_ejemplo_punto_giro_expandida}
+	\end{equation}
+	
+	Para que $y_1/y_0$ sea acotada para todo $\eta$, el lado derecho de \eqref{eq:y1_ejemplo_punto_giro_expandida} debe desaparecer; es decir
+	
+	\begin{align}
+		2g'A' + g''A &= 0 \label{eq:condicion_A_ejemplo_punto_giro} \\
+		2g'B' + g''B &= 0 \label{eq:condicion_B_ejemplo_punto_giro}
+	\end{align}
+	
+	Por lo tanto
+	
+	\begin{equation}
+		A = \frac{a}{(g')^{1/2}}, \quad B = \frac{b}{(g')^{1/2}}
+		\label{eq:soluciones_AB_ejemplo_punto_giro}
+	\end{equation}
+	
+	donde $a$ y $b$ son constantes de integración.
+	
+	Así, a primera aproximación
+	
+	\begin{equation}
+		y = \frac{a_0\eta^{1/2}}{(g')^{1/2}}J_{1/3}(\eta^{3/2}) + \frac{b_0\eta^{1/2}}{(g')^{1/2}}J_{-1/3}(\eta^{3/2})
+		\label{eq:solucion_primera_orden_ejemplo_punto_giro}
+		\end{equation}
+		
+		donde $a_0$ y $b_0$ son constantes. Cuando $x \to 1$
+		
+		\begin{equation}
+		y = \frac{\tilde{a}_0}{(1-x)^{1/4}}J_{1/3}\left[\frac{2}{3}\lambda(1-x)^{3/2}f^{1/2}(1)\right] + \frac{\tilde{b}_0}{(1-x)^{1/4}}J_{-1/3}\left[\frac{2}{3}\lambda(1-x)^{3/2}f^{1/2}(1)\right]
+		\label{eq:solucion_cerca_punto_giro}
+		\end{equation}
+		
+		donde $\tilde{a}_0$ y $\tilde{b}_0$ son constantes. Como
+		
+		\begin{equation}
+		J_\nu(t) = t^\nu + O(t^\nu) \quad \text{cuando} \quad t \to 0
+		\label{eq:comportamiento_bessel_cerca_cero}
+		\end{equation}
+		
+		concluimos que \eqref{eq:solucion_cerca_punto_giro} está acotada cuando $x \to 1$.
+		
+		\subsection{La Ecuación de Duffing con Coeficientes Lentamente Variables}
+		
+		Consideremos ahora la ecuación
+		
+		\begin{equation}
+		\frac{d^2u}{dt^2} + \alpha(\epsilon)u + \beta(\epsilon)u^3 = 0
+		\label{eq:duffing_coeficientes_variables}
+		\end{equation}
+		
+		donde
+		
+		\begin{equation}
+		\epsilon = \epsilon t, \quad \epsilon \ll 1
+		\label{eq:epsilon_duffing_coeficientes_variables}
+		\end{equation}
+		
+		Las soluciones asintóticas de esta ecuación fueron estudiadas por Kuzmak (1959) usando el método de escalas múltiples.
+		
+		Si $\alpha$ y $\beta$ son constantes, la solución de \eqref{eq:duffing_coeficientes_variables} puede expresarse en términos de las funciones elípticas de Jacobi; es decir, en términos de
+		
+		\begin{equation}
+		u = A\text{sn}(Kt, \nu), \quad A\text{cn}(Kt, \nu), \quad A\text{dn}(Kt, \nu)
+		\label{eq:soluciones_duffing_constantes}
+		\end{equation}
+		
+		Aquí $\nu$ es el módulo y $K(\nu)$ es la integral elíptica completa. Las ecuaciones diferenciales satisfechas por estas funciones son
+		
+		\begin{align}
+		\left(\frac{d\text{sn}}{d\tau}\right)^2 &= (1 - \text{sn}^2)(1 - \nu^2\text{sn}^2) \label{eq:ecuacion_sn} \\
+		\left(\frac{d\text{cn}}{d\tau}\right)^2 &= (1 - \text{cn}^2)(\nu^2\text{cn}^2 - \nu^2 + 1) \label{eq:ecuacion_cn} \\
+		\left(\frac{d\text{dn}}{d\tau}\right)^2 &= (\text{dn}^2 - 1)(\text{dn}^2 - 1 + \nu^2) \label{eq:ecuacion_dn}
+		\end{align}
+		
+		donde $\tau = Kt$. Diferenciando ambos lados de \eqref{eq:ecuacion_sn} da
+		
+		\begin{align}
+		\frac{d^2\text{sn}}{d\tau^2} + (1 + \nu^2)\text{sn} - 2\nu^2\text{sn}^3 &= 0 \label{eq:ecuacion_segunda_sn} \\
+		\frac{d^2\text{cn}}{d\tau^2} + (1 - 2\nu^2)\text{cn} + 2\nu^2\text{cn}^3 &= 0 \label{eq:ecuacion_segunda_cn} \\
+		\frac{d^2\text{dn}}{d\tau^2} + (\nu^2 - 2)\text{dn} + 2\text{dn}^3 &= 0 \label{eq:ecuacion_segunda_dn}
+		\end{align}
+		
+		Ya que estas funciones elípticas están tabuladas para el caso $0 < \nu < 1$, expresamos la solución en términos de una de estas funciones tabuladas.
+		
+		Si $\alpha$ y $\beta$ son funciones lentamente variables en lugar de constantes, esperamos que la solución dependa de la escala de tiempo lenta $\xi = \epsilon t$ así como de la escala de tiempo rápida $t$. Además, a primera aproximación, la solución puede expresarse como en \eqref{eq:soluciones_duffing_constantes} pero con $A = A(\epsilon)$, $K = K(\epsilon)$, y $\nu = \nu(\epsilon)$. Así, en el caso de coeficientes lentamente variables, hacemos
+		
+		\begin{equation}
+		u = u_0(\xi, \eta) + \epsilon u_1(\xi, \eta) + \cdots
+		\label{eq:expansion_u_duffing_coeficientes_variables}
+		\end{equation}
+		
+		donde
+		
+		\begin{equation}
+		\eta = \frac{1}{\epsilon}g(\xi)
+		\label{eq:eta_duffing_coeficientes_variables}
+		\end{equation}
+		
+		Esta forma de solución difiere de la de Kuzmak en que él asumió $\eta = g'(\xi)t$. Sustituyendo \eqref{eq:expansion_u_duffing_coeficientes_variables} en \eqref{eq:duffing_coeficientes_variables} e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+		
+		\begin{align}
+		(g')^2\frac{\partial^2u_0}{\partial\eta^2} + \alpha(\xi)u_0 + \beta(\xi)u_0^3 &= 0 \label{eq:u0_duffing_coeficientes_variables} \\
+		(g')^2\frac{\partial^2u_1}{\partial\eta^2} + \alpha(\xi)u_1 + 3\beta(\xi)u_0^2u_1 &= -2g'g''\frac{\partial u_0}{\partial\eta} - 2g'\frac{\partial^2u_0}{\partial\xi\partial\eta} \label{eq:u1_duffing_coeficientes_variables}
+		\end{align}
+		
+		Escribimos la solución de \eqref{eq:u0_duffing_coeficientes_variables} en términos de una de las funciones elípticas en \eqref{eq:soluciones_duffing_constantes}, digamos sn; es decir
+		
+		\begin{equation}
+		u_0 = A(\xi)\text{sn}[\eta, \nu(\xi)]
+		\label{eq:solucion_u0_duffing_coeficientes_variables}
+		\end{equation}
+		
+		Por lo tanto, $u_0/A$ debe satisfacer \eqref{eq:ecuacion_segunda_sn} con $\tau = \eta$; es decir
+		
+		\begin{equation}
+		(g')^2\frac{\partial^2u_0}{\partial\eta^2} + (g')^2[1 + \nu^2(\xi)]u_0 - 2(g')^2\nu^2(\xi)u_0^3 = 0
+		\label{eq:ecuacion_u0_duffing_coeficientes_variables}
+		\end{equation}
+		
+		Para que \eqref{eq:u0_duffing_coeficientes_variables} y \eqref{eq:ecuacion_u0_duffing_coeficientes_variables} sean idénticas
+		
+		\begin{align}
+		[1 + \nu^2(\xi)](g')^2 &= \alpha(\xi) \label{eq:condicion_1_duffing_coeficientes_variables} \\
+		2\nu^2(\xi)(g')^2 &= -\beta(\xi)A^2(\xi) \label{eq:condicion_2_duffing_coeficientes_variables}
+		\end{align}
+		
+		Estas son dos relaciones entre $A(\xi)$, $\nu(\xi)$, y $g(\xi)$. Una tercera relación se determina a partir de la condición de que $u_1/u_0$ sea acotada para todo $\eta$ para que \eqref{eq:expansion_u_duffing_coeficientes_variables} sea una expansión asintótica uniformemente válida.
+		
+		Diferenciando \eqref{eq:u0_duffing_coeficientes_variables} con respecto a $\eta$ lleva a la parte homogénea de \eqref{eq:u1_duffing_coeficientes_variables}. Por lo tanto, $\partial u_0/\partial\eta$ es una solución de la parte homogénea de \eqref{eq:u1_duffing_coeficientes_variables}. Para que $u_1/u_0$ sea acotada para todo $\eta$, la parte inhomogénea en \eqref{eq:u1_duffing_coeficientes_variables} debe ser ortogonal a la solución de la parte homogénea; es decir
+		
+		\begin{equation}
+		\int_{\eta_1}^{\eta_1 + T} \frac{\partial u_0}{\partial\eta}\left(-2g'g''\frac{\partial u_0}{\partial\eta} - 2g'\frac{\partial^2u_0}{\partial\xi\partial\eta}\right)d\eta = 0
+		\label{eq:condicion_ortogonalidad_duffing_coeficientes_variables}
+		\end{equation}
+		
+		donde $\text{sn}(\eta_1, \nu) = 0$ y $T$ es el período de $\text{sn}(\eta, \nu)$ con respecto a $\eta$. Esta condición es una generalización de la eliminación de términos que producen términos seculares. La ecuación \eqref{eq:condicion_ortogonalidad_duffing_coeficientes_variables} puede reescribirse en la forma
+		
+		\begin{equation}
+		\int_{\eta_1}^{\eta_1 + T} \frac{\partial u_0}{\partial\eta}\frac{\partial^2u_0}{\partial\xi\partial\eta}d\eta = -\frac{g''}{2g'}\int_{\eta_1}^{\eta_1 + T} \left(\frac{\partial u_0}{\partial\eta}\right)^2d\eta
+		\label{eq:condicion_ortogonalidad_reescrita_duffing_coeficientes_variables}
+		\end{equation}
+		
+		o
+		
+		\begin{equation}
+		\frac{d}{d\xi}\int_{\eta_1}^{\eta_1 + T} \left(\frac{\partial u_0}{\partial\eta}\right)^2d\eta = 0
+		\label{eq:condicion_ortogonalidad_final_duffing_coeficientes_variables}
+		\end{equation}
+		
+		Ya que $u_0 = A\text{sn}(\eta, \nu)$, $\eta_1$ puede tomarse como cero y $T = 4K$ donde $K$ es la siguiente integral elíptica completa de segunda especie
+		
+		\begin{equation}
+		K(\nu) = \int_0^1 \frac{dx}{\sqrt{(1 - x^2)(1 - \nu^2x^2)}}
+		\label{eq:integral_eliptica_completa_segunda_especie}
+		\end{equation}
+		
+		Sustituyendo $u_0$ de \eqref{eq:solucion_u0_duffing_coeficientes_variables} en \eqref{eq:condicion_ortogonalidad_final_duffing_coeficientes_variables}, tenemos
+		
+		\begin{equation}
+		\frac{d}{d\xi}[A^2(\xi)g'(\xi)L(\nu)] = 0
+		\label{eq:condicion_final_duffing_coeficientes_variables}
+		\end{equation}
+		
+		donde
+		
+		\begin{equation}
+		c = A^2g'L
+		\label{eq:c_duffing_coeficientes_variables}
+		\end{equation}
+		
+		es una constante, y
+		
+		\begin{equation}
+		L = \int_0^1 (1 - \zeta^2)(1 - \nu^2\zeta^2)d\zeta
+		\label{eq:L_duffing_coeficientes_variables}
+		\end{equation}
+		
+		con $\zeta = \text{sn}(\eta, \nu)$. Usando \eqref{eq:ecuacion_sn}, expresamos $L$ como
+		
+		\begin{equation}
+		L = \int_0^1 \sqrt{(1 - \zeta^2)(1 - \nu^2\zeta^2)}d\zeta
+		\label{eq:L_reescrita_duffing_coeficientes_variables}
+		\end{equation}
+		
+		o
+		
+		\begin{equation}
+		L = \frac{(1 + \nu^2)E(\nu) - (1 - \nu^2)K(\nu)}{3\nu^2}
+		\label{eq:L_final_duffing_coeficientes_variables}
+		\end{equation}
+		
+		donde $E(\nu)$ es la siguiente integral elíptica completa de primera especie
+		
+		\begin{equation}
+		E(\nu) = \int_0^1 \sqrt{\frac{1 - \nu^2x^2}{1 - x^2}}dx
+		\label{eq:integral_eliptica_completa_primera_especie}
+		\end{equation}
+		
+		Las condiciones \eqref{eq:condicion_1_duffing_coeficientes_variables}, \eqref{eq:condicion_2_duffing_coeficientes_variables}, y \eqref{eq:condicion_final_duffing_coeficientes_variables} constituyen tres relaciones para la determinación de $A(\xi)$, $\nu(\xi)$, y $g'(\xi)$. Resolviendo para $g'$ de \eqref{eq:condicion_1_duffing_coeficientes_variables} da
+		
+		\begin{equation}
+		g' = \sqrt{\frac{\alpha(\xi)}{1 + \nu^2(\xi)}}
+		\label{eq:g_prima_duffing_coeficientes_variables}
+		\end{equation}
+		
+		Eliminando $g'$ de \eqref{eq:condicion_1_duffing_coeficientes_variables} y \eqref{eq:condicion_2_duffing_coeficientes_variables} y resolviendo para $A$, obtenemos
+		
+		\begin{equation}
+		A^2 = -\frac{2\alpha(\xi)\nu^2(\xi)}{\beta(\xi)[1 + \nu^2(\xi)]}
+		\label{eq:A_cuadrado_duffing_coeficientes_variables}
+		\end{equation}
+Elevando al cuadrado \eqref{eq:condicion_final_duffing_coeficientes_variables} y sustituyendo $g'$ y $A$ de \eqref{eq:g_prima_duffing_coeficientes_variables} y \eqref{eq:A_cuadrado_duffing_coeficientes_variables}, obtenemos
+
+\begin{equation}
+	\frac{4\alpha^3(\xi)\nu^2(\xi)L^2(\nu)}{-\beta(\xi)[1 + \nu^2(\xi)]^3} = c^2
+	\label{eq:ecuacion_nu_duffing_coeficientes_variables}
+\end{equation}
+
+Con la ayuda de estas últimas relaciones mencionadas, podemos calcular $\nu(\xi)$ de \eqref{eq:ecuacion_nu_duffing_coeficientes_variables}, luego $g'$ y $A$ de \eqref{eq:g_prima_duffing_coeficientes_variables} y \eqref{eq:A_cuadrado_duffing_coeficientes_variables}. El gráfico para la solución de \eqref{eq:ecuacion_nu_duffing_coeficientes_variables} fue dado por Kuzmak y se muestra en la Figura 6-2.
+
+Surgen tres casos diferentes dependiendo de los signos de $\alpha(\xi)$ y $\beta(\xi)$:
+
+(1) $\alpha(\xi) > 0$, $\beta(\xi) < 0$. En este caso $p > 0$ y \eqref{eq:condicion_2_duffing_coeficientes_variables} muestra que $y = \nu^2(\xi) > 0$. Por lo tanto, la curva que determina $y$ se encuentra en el primer cuadrante. La solución para $y$ existe si $0 < p < 2/9$. En $\xi_0$ tal que $p(\xi_0) = 2/9$, la solución asintótica deja de ser oscilatoria. Si $p > 2/9$, o si $\alpha(\xi) < 0$ y $\beta(\xi) < 0$, \eqref{eq:u0_duffing_coeficientes_variables} no tiene soluciones periódicas.
+
+(2) $\alpha(\xi) > 0$, $\beta(\xi) > 0$. En este caso $p > 0$ y \eqref{eq:condicion_2_duffing_coeficientes_variables} muestra que $y < 0$. Por lo tanto, la curva que determina $y$ se encuentra en el cuarto cuadrante. La solución para $y$ existe para $0 < p < \infty$.
+
+(3) $\alpha(\xi) < 0$, $\beta(\xi) > 0$. En este caso $p < 0$ y \eqref{eq:condicion_2_duffing_coeficientes_variables} muestra que $y < 0$. Por lo tanto, la curva que determina $y$ se encuentra en el tercer cuadrante. La solución para $y$ existe si $-\infty < p < -4/9$.
+
+Ya que las funciones e integrales elípticas se tabulan usualmente para $\nu$ real tal que $0 < \nu < 1$, se prefieren soluciones asintóticas alternativas en términos de $\text{cn}(\eta,\nu)$ y $\text{dn}(\eta,\nu)$ en los casos (2) y (3).
+
+\subsection{Dinámica de Reentrada}
+
+El movimiento de un cuerpo rodante de reentrada con giro variable bajo la influencia de fuerzas aerodinámicas no lineales y un ligero desplazamiento del centro de gravedad y asimetrías aerodinámicas está gobernado por (Nayfeh y Saric, 1972a)
+
+\begin{align}
+	\ddot{\xi} + \omega_0^2\xi &= \mu p\dot{\epsilon} + i\epsilon\kappa e^{-i\phi} \nonumber \\
+	&\quad + i\nu_1\dot{\xi} + i\nu_2|\xi|\dot{\xi} + i\chi_1\xi + i\chi_2|\xi|^2\xi \label{eq:ecuacion_reentrada_1} \\
+	\dot{\phi} &= p \label{eq:ecuacion_reentrada_2} \\
+	\epsilon &= \text{Imaginario}\{Ee^{-i\phi}\} \label{eq:ecuacion_reentrada_3}
+\end{align}
+
+donde $\xi = \beta + i\alpha$, $|\xi|$ es el seno del ángulo de ataque total, $p$ es la velocidad de giro, $\epsilon K$ es la amplitud de la excitación debida a la asimetría aerodinámica, y $\epsilon$ es una cantidad pequeña pero finita del orden del seno del ángulo de ataque inicial total. Aquí $\omega_0$, $\kappa$, $\gamma$, $\mu_i$, $\chi_i$, y $\nu_i$ son funciones lentamente variables del tiempo, e $I$ e $I_z$ son constantes.
+
+En ausencia de amortiguamiento y términos no lineales (es decir, $\gamma = \mu_i = \chi_i = 0$), la solución de \eqref{eq:ecuacion_reentrada_1} para $p$, $\kappa$, y $\omega_0$ constantes es
+
+\begin{equation}
+	\xi = A_1e^{i\omega_1t} + A_2e^{i\omega_2t} + \frac{\epsilon K}{(\omega_1 - p)(p - \omega_2)}e^{ip(t+\phi_0)}
+	\label{eq:solucion_lineal_reentrada}
+\end{equation}
+
+donde $A_1$ y $A_2$ son constantes complejas y
+
+\begin{equation}
+	\omega_{1,2} = -\frac{p}{2} \pm \sqrt{\frac{p^2}{4} + \omega_0^2}
+	\label{eq:frecuencias_reentrada}
+\end{equation}
+
+Las frecuencias $\omega_1$ y $\omega_2$ se llaman las frecuencias de nutación y precesión. Para cuerpos estáticamente estables (es decir, $\omega_0^2 > 0$) y $p$ positivo, $\omega_1$ es positivo mientras que $\omega_2$ es negativo. Surgen dos casos dependiendo de si $p$ está cerca de $\omega_1$ o no. El primer caso se llama resonancia de giro, y la respuesta forzada tiende a infinito cuando $p \to \omega_1$. Antes de que $p$ se aproxime a $\omega_1$, el amortiguamiento así como las fuerzas aerodinámicas no lineales modifican significativamente la respuesta. El caso de resonancia de giro se discute en esta sección para el caso $K = \epsilon^2k$, y referimos al lector a Nayfeh y Saric (1972a) para el caso no resonante.
+
+Para determinar una solución aproximada a \eqref{eq:ecuacion_reentrada_1} a \eqref{eq:ecuacion_reentrada_3} cuando $p \approx \omega_1$ usando la versión generalizada del método de escalas múltiples, hacemos uso del hecho de que los datos de prueba de vuelo reales y los cálculos numéricos de seis grados de libertad muestran que hay al menos cuatro escalas de tiempo: una escala de tiempo lenta $T_2 = \epsilon^2t$ que caracteriza $\kappa$, $\omega_0$, $\gamma$, $\nu_i$, $\chi_i$, y $\mu_i$; y tres escalas rápidas que caracterizan los componentes de nutación, precesión y forzados del ángulo de ataque. Así, asumimos expansiones de la forma
+
+\begin{align}
+	\xi &= \xi_1(T_0,T_1,T_2) + \epsilon\xi_2(T_0,T_1,T_2) + \cdots \label{eq:expansion_xi_reentrada} \\
+	p &= p_0(T_0,T_1,T_2) + \epsilon p_1(T_0,T_1,T_2) + \cdots \label{eq:expansion_p_reentrada} \\
+	\phi &= \phi_0(T_0,T_1,T_2) + \epsilon\phi_1(T_0,T_1,T_2) + \cdots \label{eq:expansion_phi_reentrada}
+\end{align}
+
+donde
+
+\begin{equation}
+	T_0 = t, \quad T_1 = \epsilon t, \quad \eta_1 = \frac{1}{\epsilon}\int_0^t \omega_1(T_2)dt', \quad \eta_2 = \frac{1}{\epsilon}\int_0^t \omega_2(T_2)dt'
+	\label{eq:escalas_tiempo_reentrada}
+\end{equation}
+
+donde $\omega_1(T_2)$ es la frecuencia de nutación y $\omega_2(T_2)$ es la frecuencia de precesión. En términos de estas variables, las derivadas temporales se transforman de acuerdo a
+
+\begin{align}
+	\frac{d}{dt} &= D_0 + \epsilon D_1 + \epsilon^2 D_2 + \omega_1\frac{\partial}{\partial\eta_1} + \omega_2\frac{\partial}{\partial\eta_2} \label{eq:derivada_primera_reentrada} \\
+	\frac{d^2}{dt^2} &= D_0^2 + 2\epsilon D_0D_1 + \epsilon^2(D_1^2 + 2D_0D_2) + \omega_1^2\frac{\partial^2}{\partial\eta_1^2} + \omega_2^2\frac{\partial^2}{\partial\eta_2^2} \nonumber \\
+	&\quad + 2\omega_1D_0\frac{\partial}{\partial\eta_1} + 2\omega_2D_0\frac{\partial}{\partial\eta_2} + 2\epsilon\omega_1D_1\frac{\partial}{\partial\eta_1} + 2\epsilon\omega_2D_1\frac{\partial}{\partial\eta_2} \label{eq:derivada_segunda_reentrada}
+\end{align}
+
+Sustituyendo \eqref{eq:expansion_xi_reentrada} a \eqref{eq:derivada_segunda_reentrada} en \eqref{eq:ecuacion_reentrada_1} y \eqref{eq:ecuacion_reentrada_3} e igualando coeficientes de potencias iguales de $\epsilon$, tenemos
+
+\begin{align}
+	L(\xi_1) &= 0 \label{eq:xi1_reentrada} \\
+	L(\xi_2) &= -2D_0D_1\xi_1 - 2\omega_1D_1\frac{\partial\xi_1}{\partial\eta_1} - 2\omega_2D_1\frac{\partial\xi_1}{\partial\eta_2} \nonumber \\
+	&\quad + i(\nu_1 + \nu_2|\xi_1|^2)\xi_1 + i(\chi_1 + \chi_2|\xi_1|^2)\xi_1 \label{eq:xi2_reentrada} \\
+	L(\xi_3) &= -2D_0D_2\xi_1 - D_1^2\xi_1 - 2D_0D_1\xi_2 - 2\omega_1D_2\frac{\partial\xi_1}{\partial\eta_1} - 2\omega_2D_2\frac{\partial\xi_1}{\partial\eta_2} \nonumber \\
+	&\quad - 2\omega_1D_1\frac{\partial\xi_2}{\partial\eta_1} - 2\omega_2D_1\frac{\partial\xi_2}{\partial\eta_2} + i(\nu_1 + \nu_2|\xi_1|^2)\xi_2 \nonumber \\
+	&\quad + i(\chi_1 + \chi_2|\xi_1|^2)\xi_2 + i\nu_2(\xi_1\bar{\xi}_2 + \bar{\xi}_1\xi_2)\xi_1 \nonumber \\
+	&\quad + i\chi_2(\xi_1\bar{\xi}_2 + \bar{\xi}_1\xi_2)\xi_1 + \mu p_0\dot{\epsilon}_1 + \mu p_1\dot{\epsilon}_0 + i\kappa e^{-i\phi_0} \label{eq:xi3_reentrada}
+\end{align}
+
+donde
+
+\begin{equation}
+	L = D_0^2 + \omega_1^2\frac{\partial^2}{\partial\eta_1^2} + \omega_2^2\frac{\partial^2}{\partial\eta_2^2} + 2\omega_1D_0\frac{\partial}{\partial\eta_1} + 2\omega_2D_0\frac{\partial}{\partial\eta_2} + \omega_0^2
+	\label{eq:operador_L_reentrada}
+\end{equation}
+
+La solución de \eqref{eq:xi1_reentrada} es
+
+\begin{equation}
+	\xi_1 = A_1(T_2)e^{i\eta_1} + A_2(T_2)e^{i\eta_2}
+	\label{eq:solucion_xi1_reentrada}
+\end{equation}
+
+Entonces \eqref{eq:ecuacion_reentrada_2} se convierte en
+
+\begin{equation}
+	D_0\phi_0 + \epsilon D_1\phi_0 + \epsilon^2 D_2\phi_0 = p_0 + \epsilon p_1 + \epsilon^2 p_2
+	\label{eq:ecuacion_phi_reentrada}
+\end{equation}
+
+Igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+\begin{align}
+	D_0\phi_0 &= p_0 \label{eq:phi0_reentrada} \\
+	D_1\phi_0 &= p_1 \label{eq:phi1_reentrada} \\
+	D_2\phi_0 &= p_2 + \nu_2p_0 + \nu_1\text{Imaginario}(\xi_1e^{-i\phi_0}) \label{eq:phi2_reentrada}
+\end{align}
+
+donde $A_n = a_n\exp(i\theta_n)$ con $a_n$ y $\theta_n$ reales. Ya que $p_0 \approx \omega_1$, $\nu_1\phi_0 - \eta_1$ es una función lentamente variable del tiempo, y la consideramos una función de $T_2$. Ahora la solución de \eqref{eq:phi2_reentrada} contiene términos que tienden a infinito cuando $\eta_1$, $\eta_2$, o $\phi_0 \to \infty$ (es decir, $t \to \infty$), invalidando así nuestra expansión para tiempos largos a menos que
+
+\begin{equation}
+	\frac{dp_0}{dT_2} = \gamma_0 + \nu_2p_0 + \nu_1a_1\sin(\eta_1 - \phi_0 + \theta_1)
+	\label{eq:ecuacion_p0_reentrada}
+\end{equation}
+
+Entonces $p_2$ se convierte en
+
+\begin{equation}
+	p_2 = \frac{a_2\nu_1}{p_0 - \omega_2}\cos(\eta_2 + \theta_2 - \phi_0)
+	\label{eq:p2_reentrada}
+\end{equation}
+
+Con $\xi_1$ conocido, \eqref{eq:xi2_reentrada} se convierte en
+
+\begin{equation}
+	\begin{split}
+		L(\xi_3) = Q_1e^{i\eta_1} + Q_2e^{i\eta_2} &+ (i\omega_1a_2 + i\chi_2 + \gamma)A_1^2\bar{A}_1e^{i(2\eta_1-\bar{\eta}_1)} \\
+		&+ (i\omega_2p_2 + i\chi_2 + \gamma)A_1\bar{A}_2e^{i(2\eta_2-\eta_1)} + CC
+	\end{split}
+	\label{eq:xi3_reentrada_expandida}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\begin{split}
+		Q_1 = &-i(\omega_1 - \omega_2)\frac{dA_1}{dT_2} - i\omega_1'A_1 \\
+		&+ i((\omega_2p_1 + \chi_1) + [-2i\gamma + 2\chi_2 + (\omega_1 + \omega_2)p_2]a_1^2 \\
+		&+ (-i\gamma + \chi_2 + \omega_1p_2)a_2^2)A_1
+	\end{split}
+	\label{eq:Q1_reentrada}
+\end{equation}
+
+\begin{equation}
+	\begin{split}
+		Q_2 = &-i(\omega_2 - \omega_1)\frac{dA_2}{dT_2} - i\omega_2'A_2 \\
+		&+ i((\omega_1p_1 + \chi_1) + [-2i\gamma + 2\chi_2 + (\omega_1 + \omega_2)p_2]a_2^2 \\
+		&+ (-i\gamma + \chi_2 + \omega_2p_2)a_1^2)A_2
+	\end{split}
+	\label{eq:Q2_reentrada}
+\end{equation}
+
+Los términos seculares en \eqref{eq:xi3_reentrada_expandida} se eliminarán si $Q_1 = Q_2 = 0$. Haciendo $A_n = a_n\exp(i\theta_n)$ con $a_n$ y $\theta_n$ reales en \eqref{eq:Q1_reentrada} y \eqref{eq:Q2_reentrada} con $Q_1 = Q_2 = 0$ y separando partes reales e imaginarias, obtenemos
+
+\begin{equation}
+	\frac{da_1}{dT_2} = \frac{1}{2}a_1\left(\frac{\omega_1'}{\omega_1 - \omega_2} - \gamma - \frac{\omega_2p_1 + \chi_1}{\omega_1 - \omega_2}\right) + \frac{1}{2}a_1(r_1a_1^2 + r_2a_2^2)
+	\label{eq:ecuacion_a1_reentrada}
+\end{equation}
+
+\begin{equation}
+	\frac{d\theta_1}{dT_2} = \frac{1}{2}\left(\frac{\omega_1'}{\omega_1 - \omega_2} + \frac{\omega_2p_1 + \chi_1}{\omega_1 - \omega_2}\right) + \frac{1}{2}(s_1a_1^2 + s_2a_2^2)
+	\label{eq:ecuacion_theta1_reentrada}
+\end{equation}
+
+\begin{equation}
+	\frac{da_2}{dT_2} = \frac{1}{2}a_2\left(\frac{\omega_2'}{\omega_2 - \omega_1} - \gamma - \frac{\omega_1p_1 + \chi_1}{\omega_2 - \omega_1}\right) + \frac{1}{2}a_2(r_3a_2^2 + r_4a_1^2)
+	\label{eq:ecuacion_a2_reentrada}
+\end{equation}
+
+\begin{equation}
+	\frac{d\theta_2}{dT_2} = \frac{1}{2}\left(\frac{\omega_2'}{\omega_2 - \omega_1} + \frac{\omega_1p_1 + \chi_1}{\omega_2 - \omega_1}\right) + \frac{1}{2}(s_3a_2^2 + s_4a_1^2)
+	\label{eq:ecuacion_theta2_reentrada}
+\end{equation}
+
+donde
+
+\begin{align}
+	r_1 &= \frac{2\chi_2 + (\omega_1 + \omega_2)p_2}{\omega_1 - \omega_2} \label{eq:r1_reentrada} \\
+	r_2 &= \frac{\chi_2 + \omega_1p_2}{\omega_1 - \omega_2} \label{eq:r2_reentrada} \\
+	s_1 &= \frac{2\chi_2 + (\omega_1 + \omega_2)p_2}{\omega_1 - \omega_2} \label{eq:s1_reentrada} \\
+	s_2 &= \frac{\chi_2 + \omega_1p_2}{\omega_1 - \omega_2} \label{eq:s2_reentrada}
+\end{align}
+
+Combinando \eqref{eq:ecuacion_theta1_reentrada} y \eqref{eq:ecuacion_theta2_reentrada} e introduciendo el parámetro de desintonización $\sigma$ definido por
+
+\begin{equation}
+	p_0 = \omega_1 + \epsilon\sigma
+	\label{eq:desintonizacion_reentrada}
+\end{equation}
+
+tenemos
+
+\begin{equation}
+	\frac{d(\theta_1 - \theta_2)}{dT_2} = \sigma + \frac{1}{2}(s_1a_1^2 + s_2a_2^2 - s_3a_2^2 - s_4a_1^2)
+	\label{eq:ecuacion_diferencia_fases_reentrada}
+\end{equation}
+
+\subsection{El Problema Tierra-Luna-Nave Espacial}
+
+El siguiente ejemplo es el problema unidimensional tierra-luna-nave espacial discutido en las Secciones 2.4.2, 3.2.2, y 4.1.7 y dado por
+
+\begin{equation}
+	\ddot{x} = \frac{\mu}{x^2} + \frac{1-\mu}{(1-x)^2}, \quad \dot{x}(0) = 0
+	\label{eq:problema_tierra_luna_nave}
+\end{equation}
+
+La expansión directa para $x$, para $\mu$ pequeño, en términos de $x$ es singular en $x = 1$, y la región de no uniformidad es $1 - x = O(\mu)$. Así, para determinar una expansión válida para todo $x$ usando el método de escalas múltiples, introducimos las dos variables (Nayfeh, 1964, 1965a)
+
+\begin{equation}
+	\xi = x, \quad \eta = \frac{1-x}{\mu}
+	\label{eq:escalas_tierra_luna_nave}
+\end{equation}
+
+Con estas variables \eqref{eq:problema_tierra_luna_nave} se convierte en
+
+\begin{equation}
+	\frac{\partial^2t}{\partial\xi^2} - 2\mu\frac{\partial^2t}{\partial\xi\partial\eta} + \mu^2\frac{\partial^2t}{\partial\eta^2} = \frac{\mu}{\xi^2} + \frac{1}{\mu^2\eta^2}
+	\label{eq:problema_tierra_luna_nave_transformado}
+\end{equation}
+
+donde todas las funciones de $x$ se expresan en términos de $\xi$ excepto el término $1 - x$, la fuente de la no uniformidad, que se expresa en términos de $\eta$ como $\mu\eta$.
+
+Ahora asumimos que $t$ posee la siguiente expansión uniformemente válida
+
+\begin{equation}
+	t = t_0(\xi,\eta) + \mu t_1(\xi,\eta) + \mu^2t_2(\xi,\eta) + \cdots
+	\label{eq:expansion_t_tierra_luna_nave}
+\end{equation}
+
+Sustituyendo \eqref{eq:expansion_t_tierra_luna_nave} en \eqref{eq:problema_tierra_luna_nave_transformado} e igualando coeficientes de potencias iguales de $\mu$, obtenemos
+
+\begin{align}
+	\frac{\partial^2t_0}{\partial\eta^2} &= \frac{1}{\eta^2} \label{eq:t0_tierra_luna_nave} \\
+	\frac{\partial^2t_1}{\partial\eta^2} &= 2\frac{\partial^2t_0}{\partial\xi\partial\eta} \label{eq:t1_tierra_luna_nave} \\
+	\frac{\partial^2t_2}{\partial\eta^2} &= 2\frac{\partial^2t_1}{\partial\xi\partial\eta} - \frac{\partial^2t_0}{\partial\xi^2} + \frac{1}{\xi^2} \label{eq:t2_tierra_luna_nave}
+\end{align}
+
+La solución general de \eqref{eq:t0_tierra_luna_nave} es
+
+\begin{equation}
+	t_0 = A(\xi) - \eta + \sqrt{\xi}\ln\eta
+	\label{eq:solucion_t0_tierra_luna_nave}
+\end{equation}
+
+donde $A$ se determina a partir de la condición de que $t_1/t_0$ sea acotada para todo $\eta$. La solución de \eqref{eq:t1_tierra_luna_nave} se convierte en
+
+\begin{equation}
+	\sqrt{\xi}t_1 = -A'(\xi)\eta + \sqrt{\xi}[\frac{1}{2}\ln\eta - \frac{1}{4}]\ln\eta + B(\xi)
+	\label{eq:solucion_t1_tierra_luna_nave}
+\end{equation}
+
+Cuando $\eta \to \infty$, \eqref{eq:solucion_t1_tierra_luna_nave} se convierte en
+
+\begin{equation}
+	\sqrt{\xi}t_1 = [\sqrt{\xi} - A'(\xi)]\eta + \frac{1}{2}\sqrt{\xi}\ln^2\eta + B(\xi) + O(\eta^{-1})
+	\label{eq:t1_asintota_tierra_luna_nave}
+\end{equation}
+
+Así, $t_1$ contiene dos términos que pueden hacer que $t_1$ sea singular cuando $\eta \to \infty$; un término proporcional a $\eta$ y un término proporcional a $\ln(\eta)$. El primer término puede eliminarse si
+
+\begin{equation}
+	A'(\xi) = \sqrt{\xi} \quad \text{o} \quad A = \frac{2}{3}\xi^{3/2} + a
+	\label{eq:condicion_A_tierra_luna_nave}
+\end{equation}
+
+donde $a$ es una constante arbitraria. En cuanto al segundo término, $\ln(\eta)$ varía lentamente con $x$ y $\mu$ aunque $\eta$ varía rápidamente. Así, debe expresarse en términos de $\xi$; es decir
+
+\begin{equation}
+	\ln\eta = -\ln(1-\xi)
+	\label{eq:ln_eta_tierra_luna_nave}
+\end{equation}
+
+Entonces $t_1$ es singular cuando $\xi \to 1$, y será acotado cuando $\xi \to 1$ si
+
+\begin{equation}
+	B(\xi) = \frac{1}{4}\xi^{3/2}\ln(1-\xi) + C(\xi)
+	\label{eq:B_tierra_luna_nave}
+\end{equation}
+
+La función $C(\xi)$ se determina requiriendo que $t_2/t_0$ sea acotada cuando $\eta \to \infty$.
+
+Sustituyendo las soluciones anteriores en \eqref{eq:t2_tierra_luna_nave}, obtenemos
+
+\begin{equation}
+	\begin{split}
+		\frac{\partial^2t_2}{\partial\eta^2} = &-\frac{3}{4}\xi^{-1/2}\eta + \frac{1}{2}\xi^{-1/2}\ln\eta \\
+		&+ \frac{3}{4}\xi^{-1/2} - \frac{1}{2}\xi^{-1/2}\ln(1-\xi) + C''(\xi) + \frac{1}{\xi^2}
+	\end{split}
+	\label{eq:t2_tierra_luna_nave_expandida}
+\end{equation}
+
+Cuando $\eta \to \infty$, \eqref{eq:t2_tierra_luna_nave_expandida} se convierte en
+
+\begin{equation}
+	\frac{\partial^2t_2}{\partial\eta^2} = -\frac{3}{4}\xi^{-1/2}\eta + \frac{1}{2}\xi^{-1/2}\ln\eta + C''(\xi) + \frac{1}{\xi^2} + O(\eta^{-1}) \quad \text{cuando} \quad \eta \to \infty
+	\label{eq:t2_asintota_tierra_luna_nave}
+\end{equation}
+
+Aquí nuevamente $\ln\eta$ se expresa en términos de $\xi$. En consecuencia, \eqref{eq:t2_asintota_tierra_luna_nave} se convierte en
+
+\begin{equation}
+	\frac{\partial^2t_2}{\partial\eta^2} = -\frac{3}{4}\xi^{-1/2}\eta - \frac{1}{2}\xi^{-1/2}\ln(1-\xi) + C''(\xi) + \frac{1}{\xi^2} + O(\eta^{-1}) \quad \text{cuando} \quad \eta \to \infty
+	\label{eq:t2_asintota_final_tierra_luna_nave}
+\end{equation}
+
+Para que $t_2/t_0$ sea acotada cuando $\eta \to \infty$, debemos tener
+
+\begin{equation}
+	C''(\xi) = \frac{1}{2}\xi^{-1/2}\ln(1-\xi) - \frac{1}{\xi^2}
+	\label{eq:ecuacion_C_tierra_luna_nave}
+\end{equation}
+
+o
+
+\begin{equation}
+	C(\xi) = -\xi^{3/2}\ln(1-\xi) + \frac{1}{\xi} + c
+	\label{eq:solucion_C_tierra_luna_nave}
+\end{equation}
+
+donde $c$ es una constante de integración.
+
+Expresando $t_0$ y $t_1$ en términos de $x$ y usando la condición inicial $t(x=0) = 0$, obtenemos $a = c = 0$. Por lo tanto
+
+\begin{equation}
+	\begin{split}
+		t = &\frac{2}{3}x^{3/2} - \frac{1-x}{\mu} + \sqrt{x}\ln\frac{1-x}{\mu} \\
+		&+ \mu\left[\frac{1}{4}x^{3/2}\ln\frac{1-x}{\mu} - x^{3/2}\ln(1-x) + \frac{1}{x}\right] + O(\mu^2)
+	\end{split}
+	\label{eq:solucion_final_tierra_luna_nave}
+\end{equation}
+
+A continuación, discutimos un método alternativo (Nayfeh, 1965a) para determinar $A(\xi)$ y $B(\xi)$. Ya que se asume que \eqref{eq:expansion_t_tierra_luna_nave} es uniformemente válida para todo $x$, debe reducirse a la expansión directa (ver Ejercicio 2.12)
+
+\begin{equation}
+	\sqrt{2}t = \frac{2}{3}x^{3/2} + \mu\left[3x^{3/2} + \sqrt{2} - 4\ln\left(\frac{1-\sqrt{x}}{1+\sqrt{x}}\right)\right] + O(\mu^2)
+	\label{eq:expansion_directa_tierra_luna_nave}
+\end{equation}
+
+lejos de $x = 1$. Podemos usar esta condición para determinar las funciones $A(\xi)$ y $B(\xi)$ en lugar de usar la condición de que $t_n/t_{n-1}$ sea acotada para todo $\xi$ y $\eta$. Expresando \eqref{eq:expansion_t_tierra_luna_nave} en términos de $x$, y expandiendo para $\mu$ pequeño, obtenemos
+
+\begin{equation}
+	\begin{split}
+		t = &A(x) - \frac{1-x}{\mu} + \sqrt{x}\ln\frac{1-x}{\mu} \\
+		&+ \mu\left[B(x) + \frac{1}{4}x^{3/2}\ln\frac{1-x}{\mu}\right] + O(\mu^2)
+	\end{split}
+	\label{eq:expansion_t_alternativa_tierra_luna_nave}
+\end{equation}
+
+Para que los primeros términos en \eqref{eq:expansion_directa_tierra_luna_nave} y \eqref{eq:expansion_t_alternativa_tierra_luna_nave} sean los mismos
+
+\begin{equation}
+	A(x) = \frac{2}{3}x^{3/2}
+	\label{eq:A_final_tierra_luna_nave}
+\end{equation}
+
+Entonces los segundos términos son los mismos si
+
+\begin{equation}
+	B(x) = -x^{3/2}\ln(1-x) + \frac{1}{x}
+	\label{eq:B_final_tierra_luna_nave}
+\end{equation}
+
+Sustituyendo estas expresiones para $A$ y $B$ en \eqref{eq:expansion_t_alternativa_tierra_luna_nave} y expresando el resultado en términos de $x$, obtenemos \eqref{eq:solucion_final_tierra_luna_nave} exactamente.
+
+\subsection{Un Modelo para Ondas Dispersivas}
+
+Consideramos nuevamente la ecuación modelo de Bretherton (1964)
+
+\begin{equation}
+	\phi_{tt} + \phi_{xxxx} + \phi_{xx} + \phi = \epsilon\phi^3
+	\label{eq:bretherton_dispersiva}
+\end{equation}
+
+La ecuación linealizada admite la solución de onda uniforme
+
+\begin{equation}
+	\phi = a\cos\theta
+	\label{eq:solucion_lineal_bretherton}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\theta = kx - \omega t, \quad \omega^2 = k^4 - k^2 + 1
+	\label{eq:theta_y_dispersion_bretherton}
+\end{equation}
+
+Para determinar una onda que varía lentamente con la posición y el tiempo, seguimos a Nayfeh y Hassan (1971) asumiendo que
+
+\begin{equation}
+	\phi = \phi_0(\theta, X_1, T_1) + \epsilon\phi_1(\theta, X_1, T_1) + \cdots
+	\label{eq:expansion_phi_bretherton_dispersiva}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\theta = \epsilon^{-1}\Theta(X_1, T_1), \quad X_1 = \epsilon x, \quad T_1 = \epsilon t
+	\label{eq:escalas_bretherton_dispersiva}
+\end{equation}
+
+En términos de las nuevas variables $\theta$, $X_1$, y $T_1$, las derivadas temporales y espaciales se convierten en
+
+\begin{align}
+	\frac{\partial^2}{\partial t^2} &= \omega^2\frac{\partial^2}{\partial\theta^2} - 2\epsilon\omega\frac{\partial^2}{\partial\theta\partial T_1} - \epsilon\frac{\partial\omega}{\partial T_1}\frac{\partial}{\partial\theta} + \epsilon^2\frac{\partial^2}{\partial T_1^2} \label{eq:derivada_temporal_bretherton} \\
+	\frac{\partial^2}{\partial x^2} &= k^2\frac{\partial^2}{\partial\theta^2} + 2\epsilon k\frac{\partial^2}{\partial\theta\partial X_1} + \epsilon\frac{\partial k}{\partial X_1}\frac{\partial}{\partial\theta} + \epsilon^2\frac{\partial^2}{\partial X_1^2} \label{eq:derivada_espacial_bretherton} \\
+	\frac{\partial^4}{\partial x^4} &= k^4\frac{\partial^4}{\partial\theta^4} + 4\epsilon k^3\frac{\partial^4}{\partial\theta^3\partial X_1} + 6\epsilon^2k^2\frac{\partial^4}{\partial\theta^2\partial X_1^2} + \cdots \label{eq:derivada_cuarta_espacial_bretherton}
+\end{align}
+
+Sustituyendo \eqref{eq:expansion_phi_bretherton_dispersiva} en \eqref{eq:bretherton_dispersiva} e igualando coeficientes de potencias iguales de $\epsilon$, tenemos
+
+\begin{align}
+	L(\phi_0) &= (\omega^2 + k^2)\frac{\partial^2\phi_0}{\partial\theta^2} + k^4\frac{\partial^4\phi_0}{\partial\theta^4} + \phi_0 = 0 \label{eq:phi0_bretherton_dispersiva} \\
+	L(\phi_1) &= \phi_0^3 + 2\omega\frac{\partial^2\phi_0}{\partial\theta\partial T_1} - 2k\frac{\partial^2\phi_0}{\partial\theta\partial X_1} - 4k^3\frac{\partial^4\phi_0}{\partial\theta^3\partial X_1} \nonumber \\
+	&\quad + \left(\frac{\partial\omega}{\partial T_1} - \frac{\partial k}{\partial X_1}\right)\frac{\partial\phi_0}{\partial\theta} - 6k^2\frac{\partial^4\phi_0}{\partial\theta^2\partial X_1^2} \label{eq:phi1_bretherton_dispersiva}
+\end{align}
+
+La solución de \eqref{eq:phi0_bretherton_dispersiva} se toma como
+
+\begin{equation}
+	\phi_0 = A(X_1, T_1)e^{i\theta} + \bar{A}(X_1, T_1)e^{-i\theta}
+	\label{eq:solucion_phi0_bretherton_dispersiva}
+\end{equation}
+
+donde
+
+\begin{equation}
+	\omega^2 = k^4 - k^2 + 1
+	\label{eq:relacion_dispersion_bretherton_dispersiva}
+\end{equation}
+
+Sustituyendo $\phi_0$ en \eqref{eq:phi1_bretherton_dispersiva}, tenemos
+
+\begin{equation}
+	L(\phi_1) = Q(X_1, T_1)e^{i\theta} + A^3e^{3i\theta} + CC
+	\label{eq:phi1_bretherton_dispersiva_expandida}
+\end{equation}
+
+donde
+
+\begin{equation}
+	Q = 2i\omega\frac{\partial A}{\partial T_1} + 2ik(2k^2 - 1)\frac{\partial A}{\partial X_1} + i\left(\frac{\partial\omega}{\partial T_1} - \frac{\partial k}{\partial X_1}\right)A + i(6k^2 - 1)\frac{\partial k}{\partial X_1}A + 3A^2\bar{A}
+	\label{eq:Q_bretherton_dispersiva}
+\end{equation}
+
+La condición que debe satisfacerse para que no haya términos seculares es $Q = 0$. Para simplificar esta condición, notamos que
+
+\begin{equation}
+	\omega\omega' = 2k^3 - k
+	\label{eq:relacion_omega_prima_bretherton}
+\end{equation}
+
+donde $\omega' = d\omega/dk$, la velocidad de grupo. Diferenciando \eqref{eq:relacion_omega_prima_bretherton} con respecto a $X_1$, tenemos
+
+\begin{equation}
+	\omega\frac{\partial\omega}{\partial X_1} + \omega'\frac{\partial k}{\partial X_1} = (6k^2 - 1)\frac{\partial k}{\partial X_1}
+	\label{eq:relacion_omega_k_bretherton}
+\end{equation}
+
+Si $\Theta$ es dos veces continuamente diferenciable, $\omega$ y $k$ satisfacen la relación de compatibilidad
+
+\begin{equation}
+	\frac{\partial k}{\partial T_1} + \frac{\partial\omega}{\partial X_1} = 0
+	\label{eq:compatibilidad_bretherton}
+\end{equation}
+
+o
+
+\begin{equation}
+	\frac{\partial\omega}{\partial T_1} = \omega'\frac{\partial k}{\partial T_1}
+	\label{eq:relacion_omega_t_bretherton}
+\end{equation}
+
+Por lo tanto
+
+\begin{equation}
+	\frac{\partial\omega}{\partial T_1} - \frac{\partial k}{\partial X_1} = \omega'\left(\frac{\partial k}{\partial T_1} + \frac{\partial\omega}{\partial X_1}\right) = 0
+	\label{eq:relacion_omega_k_t_bretherton}
+\end{equation}
+
+Con \eqref{eq:relacion_omega_prima_bretherton} y \eqref{eq:relacion_omega_k_t_bretherton} la condición $Q = 0$ puede simplificarse a
+
+\begin{equation}
+	\frac{\partial A}{\partial T_1} + \omega'\frac{\partial A}{\partial X_1} + \frac{3i}{2\omega}A^2\bar{A} = -\frac{i}{2\omega}\frac{\partial k}{\partial X_1}A
+	\label{eq:condicion_A_bretherton_dispersiva}
+\end{equation}
+
+Haciendo $A = \frac{1}{2}a\exp(i\beta)$ en \eqref{eq:condicion_A_bretherton_dispersiva} y separando partes reales e imaginarias, tenemos
+
+\begin{align}
+	\frac{\partial a}{\partial T_1} + \frac{\partial}{\partial X_1}(\omega'a) &= 0 \label{eq:ecuacion_a_bretherton_dispersiva} \\
+	a\frac{\partial\beta}{\partial T_1} + a\omega'\frac{\partial\beta}{\partial X_1} &= -\frac{3}{8\omega}a^3 - \frac{1}{2\omega}\frac{\partial k}{\partial X_1}a \label{eq:ecuacion_beta_bretherton_dispersiva}
+\end{align}
+
+La solución obtenida en esta sección usando el método de escalas múltiples es una representación diferente de la solución obtenida en la Sección 5.8.1 promediando el Lagrangiano. De hecho, las ecuaciones que gobiernan la amplitud y el número de onda tienen exactamente la misma forma. Sin embargo, en la Sección 5.8.1 no hay fase, pero la relación de dispersión \eqref{eq:relacion_dispersion_bretherton_dispersiva} depende de la amplitud; en esta sección la relación de dispersión es independiente de la amplitud pero la solución describe la variación de fase. Para mostrar la equivalencia de estas representaciones, expandimos $\theta$ de la Sección 5.8.1 en la forma
+
+\begin{equation}
+	\theta = \theta_0 - \epsilon\gamma
+	\label{eq:expansion_theta_bretherton}
+\end{equation}
+
+de modo que
+
+\begin{equation}
+	\omega = \omega_0 + \epsilon\frac{\partial\gamma}{\partial t}
+	\label{eq:omega_expandida_bretherton}
+\end{equation}
+
+Sustituyendo \eqref{eq:omega_expandida_bretherton} en \eqref{eq:relacion_dispersion_bretherton_dispersiva} e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+\begin{align}
+	\omega_0^2 &= k_0^4 - k_0^2 + 1 \label{eq:dispersion_orden_cero_bretherton} \\
+	\frac{\partial\gamma}{\partial t} + \omega_0'\frac{\partial\gamma}{\partial x} &= \frac{3a^2}{8\omega_0} \label{eq:ecuacion_gamma_bretherton}
+\end{align}
+
+La última ecuación es la misma que \eqref{eq:ecuacion_beta_bretherton_dispersiva}
+
+\subsection{La Ecuación de Klein-Gordon No Lineal}
+
+El último ejemplo considerado en este capítulo es la ecuación
+
+\begin{equation}
+	u_{tt} - u_{xx} + V'(u) = 0
+	\label{eq:klein_gordon}
+\end{equation}
+
+que fue tratada en la Sección 5.8.3 usando el método de Whitham de promediar el Lagrangiano. Nuestro análisis sigue el de Luke (1966).
+
+Asumimos que $u$ posee una expansión uniformemente válida de la forma
+
+\begin{equation}
+	u(x,t) = u_0(\theta, X_1, T_1) + \epsilon u_1(\theta, X_1, T_1) + \cdots
+	\label{eq:expansion_u_klein_gordon}
+\end{equation}
+
+donde $\theta$, $X_1$, y $T_1$ están definidos en \eqref{eq:escalas_bretherton_dispersiva}. Sustituyendo \eqref{eq:expansion_u_klein_gordon} en \eqref{eq:klein_gordon}, usando las expresiones para las derivadas de la sección anterior, e igualando coeficientes de potencias iguales de $\epsilon$, obtenemos
+
+\begin{align}
+	(\omega^2 - k^2)\frac{\partial^2u_0}{\partial\theta^2} + V'(u_0) &= 0 \label{eq:u0_klein_gordon} \\
+	(\omega^2 - k^2)\frac{\partial^2u_1}{\partial\theta^2} + V''(u_0)u_1 &= -2\omega\frac{\partial^2u_0}{\partial\theta\partial T_1} + 2k\frac{\partial^2u_0}{\partial\theta\partial X_1} \nonumber \\
+	&\quad + \left(\frac{\partial\omega}{\partial T_1} - \frac{\partial k}{\partial X_1}\right)\frac{\partial u_0}{\partial\theta} \label{eq:u1_klein_gordon}
+\end{align}
+
+La ecuación \eqref{eq:u0_klein_gordon} puede integrarse una vez para dar
+
+\begin{equation}
+	\frac{1}{2}(\omega^2 - k^2)\left(\frac{\partial u_0}{\partial\theta}\right)^2 + V(u_0) = E(X_1, T_1)
+	\label{eq:u0_integrada_klein_gordon}
+\end{equation}
+
+cuya solución es
+
+\begin{equation}
+	u_0 = f(\theta + \nu, E, \omega^2 - k^2)
+	\label{eq:solucion_u0_klein_gordon}
+\end{equation}
+
+donde $E(X_1, T_1)$ y $\nu(X_1, T_1)$ son funciones desconocidas a ser determinadas examinando \eqref{eq:u1_klein_gordon}. Invirtiendo \eqref{eq:solucion_u0_klein_gordon}, encontramos que
+
+\begin{equation}
+	\theta = F(u_0, E, \omega^2 - k^2) - \nu
+	\label{eq:theta_klein_gordon}
+\end{equation}
+
+Asumimos que $f$ es periódica con un período constante que puede normalizarse a la unidad de modo que
+
+\begin{equation}
+	\int_0^1 \frac{dt}{\sqrt{2[E - V(t)]}} = \frac{1}{\sqrt{\omega^2 - k^2}}
+	\label{eq:condicion_periodicidad_klein_gordon}
+\end{equation}
+
+Esto proporciona una relación entre $\omega$, $k$, y $E$ que es una relación de dispersión.
+
+Ahora la solución particular de \eqref{eq:u1_klein_gordon} contiene términos que hacen que $u_1/u_0$ no sea acotada cuando $\theta \to \infty$ a menos que el lado derecho de \eqref{eq:u1_klein_gordon} sea ortogonal a la solución de la ecuación adjunta homogénea. Esta condición a veces se conoce como la condición de solubilidad, y es una generalización de la condición de eliminación de términos seculares que se ha usado extensamente en este libro. Ya que \eqref{eq:u1_klein_gordon} es auto-adjunta, la condición de solubilidad exige que su lado derecho sea ortogonal a la solución de la ecuación homogénea que puede demostrarse fácilmente que es $u_1 = \partial u_0/\partial\theta$. Así, la condición de solubilidad requiere que
+
+\begin{equation}
+	\int_0^1 \frac{\partial u_0}{\partial\theta}\left(-2\omega\frac{\partial^2u_0}{\partial\theta\partial T_1} + 2k\frac{\partial^2u_0}{\partial\theta\partial X_1} + \left(\frac{\partial\omega}{\partial T_1} - \frac{\partial k}{\partial X_1}\right)\frac{\partial u_0}{\partial\theta}\right)d\theta = 0
+	\label{eq:condicion_solubilidad_klein_gordon}
+\end{equation}
+
+que puede reescribirse como
+
+\begin{equation}
+	\frac{\partial}{\partial T_1}\int_0^1 \omega\left(\frac{\partial u_0}{\partial\theta}\right)^2d\theta = \frac{\partial}{\partial X_1}\int_0^1 k\left(\frac{\partial u_0}{\partial\theta}\right)^2d\theta
+	\label{eq:condicion_solubilidad_reescrita_klein_gordon}
+\end{equation}
+
+Cambiando la variable de integración de $\theta$ a $u$, y sustituyendo $\partial u_0/\partial\theta$ de \eqref{eq:u0_integrada_klein_gordon}, podemos reescribir esta condición como
+
+\begin{equation}
+	\frac{\partial}{\partial T_1}\int_{u_1}^{u_2} \frac{\omega du}{\sqrt{2[E - V(u)]}} = \frac{\partial}{\partial X_1}\int_{u_1}^{u_2} \frac{k du}{\sqrt{2[E - V(u)]}}
+	\label{eq:condicion_solubilidad_final_klein_gordon}
+\end{equation}
+
+Esto proporciona una segunda relación entre $\omega$, $k$, y $E$. La tercera relación es la ecuación de compatibilidad \eqref{eq:compatibilidad_bretherton}.
+
+Los resultados de esta sección están de acuerdo con los obtenidos en la Sección 5.8.3 usando el enfoque variacional.
+
+\subsection{Ventajas y Limitaciones del Método Generalizado}
+
+Este método ciertamente puede aplicarse a todos los problemas que pueden tratarse ya sea por el método de expansión de derivadas o por el procedimiento de expansión de dos variables. Además, también puede aplicarse a casos en los que ambos métodos fallan, como problemas que requieren escalas no lineales (por ejemplo, un oscilador con coeficientes lentamente variables) o problemas que tienen cambios bruscos (por ejemplo, el problema tierra-luna-nave espacial). Sin embargo, el álgebra es más complicada, y el método de expansión de derivadas y el procedimiento de expansión de dos variables son preferibles para problemas de oscilación no lineal con coeficientes constantes.
+
+El método de escalas múltiples puede usarse para obtener expansiones uniformemente válidas para problemas que pueden tratarse usando el método de coordenadas deformadas. Además, el método de escalas múltiples puede aplicarse a casos en los que el método de coordenadas deformadas no puede aplicarse, como problemas que involucran amortiguamiento o cambios bruscos. En casos en los que el método de coordenadas deformadas se aplica, puede tener una ventaja debido a la implicitud de la solución. Para ecuaciones hiperbólicas no dispersivas, son deseables las expansiones en términos de características exactas. Sin embargo, el método de escalas múltiples puede verse como una generalización del método de coordenadas deformadas si las escalas se dan implícitamente en lugar de explícitamente en términos de las variables originales.
+
+Los ejemplos considerados en este capítulo demuestran que el método de escalas múltiples puede aplicarse a problemas que pueden tratarse por el método de expansiones asintóticas emparejadas, como el problema tierra-luna-nave espacial, así como a problemas que no pueden tratarse por este último método, como oscilaciones no lineales. El método de escalas múltiples produce una sola expansión uniformemente válida, en contraste con el método de expansiones asintóticas emparejadas que produce dos expansiones que deben emparejarse. Aunque una ecuación diferencial ordinaria se transforma en una ecuación diferencial parcial por el método de escalas múltiples, la primera aproximación no es más difícil de resolver que la primera ecuación interna. Sin embargo, las ecuaciones para la determinación de las diferentes escalas pueden ser difíciles de resolver (Mahony, 1962). Además, este método aún no se ha aplicado a ecuaciones diferenciales parciales en las que el primer término en la expansión es no lineal, como el flujo viscoso alrededor de un cuerpo, o ecuaciones diferenciales parciales elípticas con perturbaciones de frontera inhomogéneas como el flujo alrededor de un perfil aerodinámico delgado.
+
+El método de escalas múltiples es aplicable a problemas que pueden tratarse por el método de promediación, el método de Krylov-Bogoliubov-Mitropolski, y las transformaciones de Lie, así como a casos que no pueden tratarse por estos métodos. Si el sistema está representado por un Hamiltoniano, las transformaciones de Lie tienen una ventaja porque las aproximaciones de orden superior pueden obtenerse recursivamente. Sin embargo, el método de escalas múltiples puede aplicarse en conjunción con las transformaciones de Lie directamente sobre el Hamiltoniano.
+
+
+
+\end{document}
